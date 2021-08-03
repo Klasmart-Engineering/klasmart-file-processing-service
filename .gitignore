@@ -1,0 +1,5 @@
+.idea
+*.log
+*.json
+go.sum
+settings.yaml
