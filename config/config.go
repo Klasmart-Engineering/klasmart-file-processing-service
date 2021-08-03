@@ -8,26 +8,26 @@ import (
 type Config struct {
 	Storage StorageConfig `yaml:"storage"`
 	MQ      MQConfig      `yaml:"mq"`
-	API APIConfig `yaml:"api"`
-	Log LogConfig `yaml:"log"`
+	API     APIConfig     `yaml:"api"`
+	Log     LogConfig     `yaml:"log"`
 }
 
 type LogConfig struct {
-	Level string `yaml:"level"`
+	Level      string `yaml:"level"`
 	FailedFile string `yaml:"failed_file"`
-	StdOut bool `yaml:"std_out"`
+	StdOut     bool   `yaml:"std_out"`
 }
 
 type APIConfig struct {
-	Port int `yaml:"port"`
+	Port      int    `yaml:"port"`
 	SecretKey string `yaml:"secret_key"`
 }
 
 type MQConfig struct {
-	Driver        string `yaml:"driver"`
-	RedisHost     string `yaml:"redis_host"`
-	RedisPort     int    `yaml:"redis_port"`
-	RedisPassword string `yaml:"redis_password"`
+	Driver                 string `yaml:"driver"`
+	RedisHost              string `yaml:"redis_host"`
+	RedisPort              int    `yaml:"redis_port"`
+	RedisPassword          string `yaml:"redis_password"`
 	RedisFailedPersistence string `yaml:"redis_failed_persistence"`
 
 	MaxWorker int `yaml:"max_worker"`
@@ -37,10 +37,10 @@ type StorageConfig struct {
 
 	Accelerate      bool   `yaml:"accelerate"`
 	StorageEndPoint string `yaml:"storage_end_point"`
-	StorageBucket   string `yaml:"storage_bucket"`
-	StorageRegion   string `yaml:"storage_region"`
+	StorageBucket   string `yaml:"bucket"`
+	StorageRegion   string `yaml:"region"`
 
-	SecretID string `yaml:"secret_id"`
+	SecretID  string `yaml:"secret_id"`
 	SecretKey string `yaml:"secret_key"`
 }
 
@@ -48,7 +48,7 @@ var (
 	cfg *Config
 )
 
-func LoadYAML(path string){
+func LoadYAML(path string) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		panic(err)
