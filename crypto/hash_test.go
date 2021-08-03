@@ -15,11 +15,13 @@ func TestHMac(t *testing.T) {
 
 func TestGenerateValidURL(t *testing.T) {
 	config.LoadYAML("../settings.yaml")
+
 	url := "/v1/processor/workers"
 	ts := time.Now().Unix()
 	url = fmt.Sprintf("%v?t=%d",url, ts)
-
 	token := HMac(url)
 	url = url + "&s=" + token
+
+
 	t.Log(url)
 }
