@@ -162,7 +162,7 @@ redis> lpush kfps:attachment '{"message": "assets/01b627c0e4faea58f6ccd8a4100c91
 ```json
 {
 	"classify": "attachment",
-  "file_name": "assets/01b627c0e4faea58f6ccd8a4100c915e392008c89ee1f40242bdb2710121d2c43207b87f0f1aa34f267a9811bf605441.png"
+    "file_name": "assets/01b627c0e4faea58f6ccd8a4100c915e392008c89ee1f40242bdb2710121d2c43207b87f0f1aa34f267a9811bf605441.png"
 }
 ```
 
