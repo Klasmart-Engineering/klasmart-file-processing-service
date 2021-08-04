@@ -2,12 +2,13 @@ package service
 
 import (
 	"context"
+	"sync"
+
 	"gitlab.badanamu.com.cn/calmisland/imq"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/config"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/entity"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/log"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/runtime"
-	"sync"
 )
 
 type FileProcessingService struct {
@@ -46,7 +47,7 @@ func (fp *FileProcessingService) SupportExtensions() map[string][]string {
 	return fp.supportExtensionsMap
 }
 
-func (fp *FileProcessingService) PendingMessages() (map[string][]string, error){
+func (fp *FileProcessingService) PendingMessages() (map[string][]string, error) {
 	res := make(map[string][]string)
 	var err error
 	for topic := range fp.supportExtensionsMap {
@@ -65,7 +66,7 @@ func (fp *FileProcessingService) initMQ() {
 		RedisPort:              config.Get().MQ.RedisPort,
 		RedisPassword:          config.Get().MQ.RedisPassword,
 		RedisFailedPersistence: config.Get().MQ.RedisFailedPersistence,
-		RedisHandlerThread: 		config.Get().MQ.MaxWorker,
+		RedisHandlerThread:     config.Get().MQ.MaxWorker,
 	})
 	if err != nil {
 		panic(err)
@@ -77,9 +78,9 @@ func (fp *FileProcessingService) subscribeTopics() {
 	for topic, handler := range fp.handler {
 		cid := fp.mq.SubscribeWithReconnect(topic, func(ctx context.Context, message string) error {
 			//Update workers num
-			runtime.GetWorkersInfo().Add()
-			defer runtime.GetWorkersInfo().Done()
-			log.Info(ctx,"receive topic: %v, message: %v \n", topic, message)
+			runtime.GetWorkersInfo().Add(topic, message)
+			defer runtime.GetWorkersInfo().Done(topic, message)
+			log.Info(ctx, "receive topic: %v, message: %v \n", topic, message)
 			return fp.handleMessage(ctx, topic, message, handler)
 		})
 		fp.mqChannels = append(fp.mqChannels, cid)
@@ -133,12 +134,12 @@ func (fp *FileProcessingService) handleMessage(ctx context.Context,
 		return err
 	}
 
-	log.Debug(ctx,"handle file success")
+	log.Debug(ctx, "handle file success")
 	return nil
 }
 
 var (
-	_fileProcessingService *FileProcessingService
+	_fileProcessingService     *FileProcessingService
 	_fileProcessingServiceOnce sync.Once
 )
 

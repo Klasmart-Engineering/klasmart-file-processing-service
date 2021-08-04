@@ -1,13 +1,14 @@
 package api
 
 import (
+	"io/ioutil"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/config"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/entity"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/runtime"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/service"
-	"io/ioutil"
-	"net/http"
 )
 
 //file processor api
@@ -34,7 +35,7 @@ func (s *Server) processFile(c *gin.Context) {
 
 func (s *Server) workers(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"workers": runtime.GetWorkersInfo().Num(),
+		"data": runtime.GetWorkersInfo().Info(),
 	})
 }
 
@@ -55,10 +56,9 @@ func (s *Server) failedList(c *gin.Context) {
 	handleFailed, _ := ioutil.ReadFile(config.Get().Log.FailedFile)
 	c.JSON(http.StatusOK, gin.H{
 		"publish_failed": string(publishFailed),
-		"handle_failed": string(handleFailed),
+		"handle_failed":  string(handleFailed),
 	})
 }
-
 
 func (s *Server) supportClassifies(c *gin.Context) {
 	extensions := service.GetFileProcessingService().SupportExtensions()
