@@ -35,10 +35,10 @@ type MQConfig struct {
 type StorageConfig struct {
 	Driver string `yaml:"driver"`
 
-	Accelerate      bool   `yaml:"accelerate"`
-	StorageEndPoint string `yaml:"storage_end_point"`
-	StorageBucket   string `yaml:"bucket"`
-	StorageRegion   string `yaml:"region"`
+	Accelerate    bool   `yaml:"accelerate"`
+	EndPoint      string `yaml:"end_point"`
+	Bucket string `yaml:"bucket"`
+	Region string `yaml:"region"`
 
 	SecretID  string `yaml:"secret_id"`
 	SecretKey string `yaml:"secret_key"`
@@ -60,13 +60,13 @@ func LoadYAML(path string) error{
 func LoadEnv() {
 	cfg = Config{
 		Storage: StorageConfig{
-			Driver:          getEnvStr("storage.driver", cfg.Storage.Driver),
-			Accelerate:      getEnvBool("storage.accelerate", cfg.Storage.Accelerate),
-			StorageEndPoint: getEnvStr("storage.endpoint", cfg.Storage.StorageEndPoint),
-			StorageBucket:   getEnvStr("storage.bucket", cfg.Storage.StorageBucket),
-			StorageRegion:   getEnvStr("storage.region", cfg.Storage.StorageRegion),
-			SecretID:        getEnvStr("storage.secret_id", cfg.Storage.SecretID),
-			SecretKey:       getEnvStr("storage.secret_key", cfg.Storage.SecretKey),
+			Driver:     getEnvStr("storage.driver", cfg.Storage.Driver),
+			Accelerate: getEnvBool("storage.accelerate", cfg.Storage.Accelerate),
+			EndPoint:   getEnvStr("storage.endpoint", cfg.Storage.EndPoint),
+			Bucket:     getEnvStr("storage.bucket", cfg.Storage.Bucket),
+			Region:     getEnvStr("storage.region", cfg.Storage.Region),
+			SecretID:   getEnvStr("storage.secret_id", cfg.Storage.SecretID),
+			SecretKey:  getEnvStr("storage.secret_key", cfg.Storage.SecretKey),
 		},
 		MQ:      MQConfig{
 			Driver:                 getEnvStr("mq.driver", cfg.MQ.Driver),
