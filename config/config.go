@@ -71,10 +71,10 @@ func LoadEnv() {
 		},
 		MQ:      MQConfig{
 			Driver:                 getEnvStr("mq.driver", cfg.MQ.Driver),
-			RedisHost:              getEnvStr("mq.host", cfg.MQ.RedisHost),
-			RedisPort:              getEnvInt("mq.port", cfg.MQ.RedisPort),
-			RedisPassword:          getEnvStr("mq.password", cfg.MQ.RedisPassword),
-			RedisFailedPersistence: getEnvStr("mq.persistence", cfg.MQ.RedisFailedPersistence),
+			RedisHost:              getEnvStr("mq.redis_host", cfg.MQ.RedisHost),
+			RedisPort:              getEnvInt("mq.redis_port", cfg.MQ.RedisPort),
+			RedisPassword:          getEnvStr("mq.redis_password", cfg.MQ.RedisPassword),
+			RedisFailedPersistence: getEnvStr("mq.redis_failed_persistence", cfg.MQ.RedisFailedPersistence),
 			MaxWorker:              getEnvInt("mq.max_worker", cfg.MQ.MaxWorker),
 		},
 		API:     APIConfig{

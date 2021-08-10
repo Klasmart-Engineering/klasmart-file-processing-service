@@ -92,6 +92,28 @@ log:
   std_out: true
 ```
 
+​	You can also set settings via environment variables, environment variables definition is as follows:
+
+| **Key**                     | **NULL** | **Note**                                               |
+| --------------------------- | -------- | ------------------------------------------------------ |
+| storage.driver              | N        | storage dirver, now it's must be "s3"                  |
+| storage.accelerate          | N        | storage support accelerate                             |
+| storage.bucket              | N        | storage bucket                                         |
+| storage.region              | N        | storage region                                         |
+| storage.secret_id           | N        | storage secret id                                      |
+| storage.secret_key          | N        | storage secret key                                     |
+| mq.driver                   | N        | mq driver, now it's must be "redis"                    |
+| mq.redis_host               | N        | redis host                                             |
+| mq.redis_port               | N        | redis port                                             |
+| mq.redis_password           | N        | redis password                                         |
+| mq.redis_failed_persistence | N        | redis save message file path when it publish failed    |
+| mq.max_worker               | N        | max process file threads count                         |
+| api.port                    | N        | web API service listen port                            |
+| api.secret_key              | N        | web API secret token key, if it's "", skip token check |
+| log.level                   | N        | log level, default "debug"                             |
+| log.failed_file             | N        | save message file path when it process failed          |
+| log.std_out                 | N        | service print logs in stdandard output                 |
+
 # Web API
 
 ​	kidsloop-file-processing-service provides a series of Web API. Access token is needed when access the Web API. This section contains the definition of Web API and the security Mechanism of the service.
