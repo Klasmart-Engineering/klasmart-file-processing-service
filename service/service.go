@@ -4,6 +4,7 @@ import (
 	"context"
 	"sync"
 
+	"gitlab.badanamu.com.cn/calmisland/common-log/log"
 	"gitlab.badanamu.com.cn/calmisland/imq"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/config"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/entity"
@@ -80,7 +81,9 @@ func (fp *FileProcessingService) subscribeTopics() {
 			//Update workers num
 			runtime.GetWorkersInfo().Add(topic, message)
 			defer runtime.GetWorkersInfo().Done(topic, message)
-			log.Info(ctx, "receive topic: %v, message: %v \n", topic, message)
+			log.Info(ctx, "receive topic",
+				log.String("topic", topic),
+				log.String("message", message))
 			return fp.handleMessage(ctx, topic, message, handler)
 		})
 		fp.mqChannels = append(fp.mqChannels, cid)
@@ -95,7 +98,9 @@ func (fp *FileProcessingService) handleMessage(ctx context.Context,
 
 	fileInfo := entity.ParseFileInfo(topic, message)
 	if fileInfo == nil {
-		log.Warn(ctx, "ParseFileInfo failed, message: %v \n", message)
+		log.Info(ctx, "parseFileInfo failed",
+			log.String("topic", topic),
+			log.String("message", message))
 		return nil
 	}
 	//ignore unsupported extension
@@ -104,14 +109,19 @@ func (fp *FileProcessingService) handleMessage(ctx context.Context,
 		return nil
 	}
 
-	log.Debug(ctx, "downloading File, fileInfo: %#v \n", fileInfo)
+	log.Info(ctx, "downloading File",
+		log.Any("fileInfo", fileInfo))
 	//download file
 	fileParams, err := fp.downloadFile(ctx, fileInfo)
 	if err != nil {
-		log.Error(ctx, "downloadFile failed, err: %v \n", err)
+		log.Error(ctx, "downloadFile failed",
+			log.Err(err),
+			log.Any("fileInfo", fileInfo),
+			log.String("message", message))
 		return err
 	}
-	log.Debug(ctx, "downloadFile success, fileParams: %#v \n", fileParams)
+	log.Debug(ctx, "downloading success",
+		log.Any("fileParams", fileParams))
 	defer fileParams.CleanLocalFile(ctx)
 	defer fileParams.CleanOutputFile(ctx)
 
@@ -123,8 +133,10 @@ func (fp *FileProcessingService) handleMessage(ctx context.Context,
 	//handle file
 	err = handler(ctx, fileParams)
 	if err != nil {
-		log.Error(ctx, "Handle file failed, fileParams: %#v, err: %v", fileParams, err)
-		log.Failed(ctx, "Handle file failed, fileParams: %#v, err: %v", fileParams, err)
+		log.Error(ctx, "Handle file failed",
+			log.Err(err),
+			log.Any("fileParams", fileParams))
+		fatal.Write(ctx, "Handle file failed, fileParams: %#v, err: %v", fileParams, err)
 		return nil
 	}
 

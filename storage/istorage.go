@@ -2,8 +2,8 @@ package storage
 
 import (
 	"context"
+	"gitlab.badanamu.com.cn/calmisland/common-log/log"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/config"
-	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/log"
 	"io"
 	"mime/multipart"
 	"sync"
@@ -40,7 +40,9 @@ func createStorageByEnv(ctx context.Context) {
 		})
 		err := _defaultStorage.OpenStorage(ctx)
 		if err !=nil {
-			log.Error(ctx, "Open storage failed, err: ", err)
+			log.Error(ctx, "open storage failed",
+				log.Err(err),
+				log.Any("config", conf.Storage))
 			panic(err)
 		}
 	default:
