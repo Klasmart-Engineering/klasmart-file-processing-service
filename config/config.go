@@ -48,16 +48,52 @@ var (
 	cfg *Config
 )
 
-func LoadYAML(path string) {
+func LoadYAML(path string) error{
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	cfg = new(Config)
 	err = yaml.Unmarshal(data, cfg)
-	if err != nil {
-		panic(err)
+	return err
+}
+
+func LoadEnv() {
+	cfg = &Config{
+		Storage: StorageConfig{
+			Driver:          getEnvStr("storage.driver", cfg.Storage.Driver),
+			Accelerate:      getEnvBool("storage.accelerate", cfg.Storage.Accelerate),
+			StorageEndPoint: getEnvStr("storage.endpoint", cfg.Storage.StorageEndPoint),
+			StorageBucket:   getEnvStr("storage.bucket", cfg.Storage.StorageBucket),
+			StorageRegion:   getEnvStr("storage.region", cfg.Storage.StorageRegion),
+			SecretID:        getEnvStr("storage.secret_id", cfg.Storage.SecretID),
+			SecretKey:       getEnvStr("storage.secret_key", cfg.Storage.SecretKey),
+		},
+		MQ:      MQConfig{
+			Driver:                 getEnvStr("mq.driver", cfg.MQ.Driver),
+			RedisHost:              getEnvStr("mq.host", cfg.MQ.RedisHost),
+			RedisPort:              getEnvInt("mq.port", cfg.MQ.RedisPort),
+			RedisPassword:          getEnvStr("mq.password", cfg.MQ.RedisPassword),
+			RedisFailedPersistence: getEnvStr("mq.persistence", cfg.MQ.RedisFailedPersistence),
+			MaxWorker:              getEnvInt("mq.max_worker", cfg.MQ.MaxWorker),
+		},
+		API:     APIConfig{
+			Port:      getEnvInt("api.port", cfg.API.Port),
+			SecretKey: getEnvStr("api.secret_key", cfg.API.SecretKey),
+		},
+		Log:     LogConfig{
+			Level:      getEnvStr("log.level", cfg.Log.Level),
+			FailedFile: getEnvStr("log.failed_file", cfg.Log.FailedFile),
+			StdOut:     getEnvBool("log.std_out", cfg.Log.StdOut),
+		},
 	}
+}
+func MustLoad(yaml string)  {
+	err := LoadYAML(yaml)
+	if err != nil {
+		cfg = new(Config)
+	}
+	LoadEnv()
 }
 
 func Get() *Config {
