@@ -17,7 +17,10 @@ func getEnvInt(key string, oldVal int) int{
 	if data == "" {
 		return oldVal
 	}
-	val, _ := strconv.Atoi(data)
+	val, err:= strconv.Atoi(data)
+	if err != nil {
+		return oldVal
+	}
 	return val
 }
 func getEnvBool(key string, oldVal bool) bool {
@@ -25,6 +28,9 @@ func getEnvBool(key string, oldVal bool) bool {
 	if data == "" {
 		return oldVal
 	}
-	val, _ := strconv.ParseBool(data)
+	val, err := strconv.ParseBool(data)
+	if err != nil {
+		return oldVal
+	}
 	return val
 }

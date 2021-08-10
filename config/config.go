@@ -45,7 +45,7 @@ type StorageConfig struct {
 }
 
 var (
-	cfg *Config
+	cfg Config
 )
 
 func LoadYAML(path string) error{
@@ -53,13 +53,12 @@ func LoadYAML(path string) error{
 	if err != nil {
 		return err
 	}
-	cfg = new(Config)
-	err = yaml.Unmarshal(data, cfg)
+	err = yaml.Unmarshal(data, &cfg)
 	return err
 }
 
 func LoadEnv() {
-	cfg = &Config{
+	cfg = Config{
 		Storage: StorageConfig{
 			Driver:          getEnvStr("storage.driver", cfg.Storage.Driver),
 			Accelerate:      getEnvBool("storage.accelerate", cfg.Storage.Accelerate),
@@ -89,16 +88,10 @@ func LoadEnv() {
 	}
 }
 func MustLoad(yaml string)  {
-	err := LoadYAML(yaml)
-	if err != nil {
-		cfg = new(Config)
-	}
+	LoadYAML(yaml)
 	LoadEnv()
 }
 
-func Get() *Config {
-	if cfg == nil {
-		panic("Config is nil")
-	}
+func Get() Config {
 	return cfg
 }
