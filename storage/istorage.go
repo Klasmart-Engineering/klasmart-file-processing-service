@@ -31,9 +31,9 @@ func createStorageByEnv(ctx context.Context) {
 	switch conf.Storage.Driver {
 	case "s3":
 		_defaultStorage = newS3Storage(S3StorageConfig{
-			Endpoint:   conf.Storage.StorageEndPoint,
-			Bucket:     conf.Storage.StorageBucket,
-			Region:     conf.Storage.StorageRegion,
+			Endpoint:   conf.Storage.EndPoint,
+			Bucket:     conf.Storage.Bucket,
+			Region:     conf.Storage.Region,
 			SecretID: 	conf.Storage.SecretID,
 			SecretKey:	conf.Storage.SecretKey,
 			Accelerate: conf.Storage.Accelerate,
