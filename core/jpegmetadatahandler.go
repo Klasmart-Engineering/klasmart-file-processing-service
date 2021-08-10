@@ -2,8 +2,8 @@ package core
 
 import (
 	"context"
+	"gitlab.badanamu.com.cn/calmisland/common-log/log"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/entity"
-	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/log"
 	"image/jpeg"
 	"sync"
 )
@@ -17,18 +17,24 @@ type RemoveJPEGMetaDataHandler struct {
 func (ih *RemoveJPEGMetaDataHandler) Do(ctx context.Context, f *entity.HandleFileParams) error {
 	dst, err := f.CreateOutputFile(ctx)
 	if err != nil {
-		log.Error(ctx, "Can't create output file, err: ", err)
+		log.Error(ctx, "Can't create output file",
+			log.Err(err),
+			log.Any("params", f))
 		return err
 	}
 
 	img, err := jpeg.Decode(f.LocalFile) //Decode file
 	if err != nil {
-		log.Error(ctx, "Can't decode jpeg file, err: ", err)
+		log.Error(ctx, "Can't decode jpeg file",
+			log.Err(err),
+			log.Any("params", f))
 		return err
 	}
 	err = jpeg.Encode(dst, img, &jpeg.Options{Quality: 100}) //Encode file
 	if err != nil {
-		log.Error(ctx, "Can't encode jpeg file, err: ", err)
+		log.Error(ctx, "Can't encode jpeg file",
+			log.Err(err),
+			log.Any("params", f))
 		return err
 	}
 

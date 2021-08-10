@@ -2,7 +2,7 @@ package entity
 
 import (
 	"context"
-	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/log"
+	"gitlab.badanamu.com.cn/calmisland/common-log/log"
 	"os"
 	"strings"
 )
@@ -54,7 +54,9 @@ func (h *HandleFileParams) CreateOutputFile(ctx context.Context) (*os.File, erro
 	path := os.TempDir() + "/" + h.Name + "-handled"
 	dst, err := os.Create(path)
 	if err != nil {
-		log.Error(ctx, "Can't create dist file, err: ", err)
+		log.Error(ctx, "Can't create dist file",
+			log.Err(err),
+			log.Any("params", h))
 		return nil, err
 	}
 
@@ -67,7 +69,9 @@ func (h *HandleFileParams) CleanOutputFile(ctx context.Context) {
 		h.DistFile.Close()
 		err := os.Remove(h.DistPath)
 		if err != nil {
-			log.Error(ctx,"Can't remove output file, err: %v", err)
+			log.Error(ctx, "Can't remove output file",
+				log.Err(err),
+				log.Any("params", h))
 		}
 	}
 }
@@ -76,7 +80,9 @@ func (h *HandleFileParams) CleanLocalFile(ctx context.Context) {
 		h.LocalFile.Close()
 		err := os.Remove(h.LocalPath)
 		if err != nil {
-			log.Error(ctx,"Remove local file failed, err: %v", err)
+			log.Error(ctx, "Remove local file failed",
+				log.Err(err),
+				log.Any("params", h))
 		}
 	}
 }

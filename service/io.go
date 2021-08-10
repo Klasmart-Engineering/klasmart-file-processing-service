@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
+	"gitlab.badanamu.com.cn/calmisland/common-log/log"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/entity"
-	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/log"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/storage"
 	"io"
 	"os"
@@ -16,7 +16,9 @@ func (fp *FileProcessingService) removeUnusedFiles(ctx context.Context, filePath
 		}
 		err := os.RemoveAll(filePath[i])
 		if err != nil {
-			log.Error(ctx, "Remove file failed, err: ", err)
+			log.Error(ctx, "Remove file failed",
+				log.Err(err),
+				log.Strings("filePath", filePath))
 		}
 	}
 }
@@ -31,7 +33,10 @@ func (fp *FileProcessingService) uploadHandledFile(ctx context.Context, fileInfo
 	}
 	f, err := os.OpenFile(filePath, os.O_RDONLY, 0777)
 	if err != nil {
-		log.Error(ctx, "Can't open fileInfo, err:", err)
+		log.Error(ctx, "Can't open fileInfo",
+			log.Err(err),
+			log.String("filePath", filePath),
+			log.Any("fileInfo", fileInfo))
 		return err
 	}
 	defer f.Close()
@@ -39,7 +44,10 @@ func (fp *FileProcessingService) uploadHandledFile(ctx context.Context, fileInfo
 	uploadPath := fileInfo.Path
 	err = storage.DefaultStorage(ctx).UploadFile(ctx, uploadPath, f)
 	if err != nil {
-		log.Error(ctx, "Can't upload resource, err:", err)
+		log.Error(ctx, "Can't upload resource",
+			log.Err(err),
+			log.Any("f", f),
+			log.String("uploadPath", uploadPath))
 		return err
 	}
 	return nil
@@ -49,7 +57,10 @@ func (fp *FileProcessingService) backupFile(ctx context.Context, file *entity.Fi
 	uploadPath := "/backup/" + file.Path
 	err := storage.DefaultStorage(ctx).UploadFile(ctx, uploadPath, f)
 	if err != nil {
-		log.Error(ctx, "Can't upload resource, err:", err)
+		log.Error(ctx, "Can't upload resource",
+			log.Err(err),
+			log.Any("f", f),
+			log.Any("file", file))
 		return err
 	}
 	f.Seek(0, io.SeekStart)
@@ -59,7 +70,9 @@ func (fp *FileProcessingService) backupFile(ctx context.Context, file *entity.Fi
 func (fp *FileProcessingService) downloadFile(ctx context.Context, fileInfo *entity.FileInfo) (*entity.HandleFileParams, error) {
 	reader, err := storage.DefaultStorage(ctx).DownloadFile(ctx, fileInfo.Path)
 	if err != nil {
-		log.Error(ctx, "Can't download resource, err:", err)
+		log.Error(ctx, "Can't download resource",
+			log.Err(err),
+			log.Any("fileInfo", fileInfo))
 		return nil, err
 	}
 
@@ -67,12 +80,16 @@ func (fp *FileProcessingService) downloadFile(ctx context.Context, fileInfo *ent
 
 	f, err := os.OpenFile(localFilePath, os.O_CREATE|os.O_RDWR, 0777)
 	if err != nil {
-		log.Error(ctx,"Can't open fileInfo, err:", err)
+		log.Error(ctx, "Can't open fileInfo",
+			log.Err(err),
+			log.Any("fileInfo", fileInfo))
 		return nil, err
 	}
 	_, err = io.Copy(f, reader)
 	if err != nil {
-		log.Error(ctx, "Save fileInfo failed, err:", err)
+		log.Error(ctx, "Save fileInfo failed",
+			log.Err(err),
+			log.Any("f", f))
 		return nil, err
 	}
 	f.Close()
@@ -80,7 +97,9 @@ func (fp *FileProcessingService) downloadFile(ctx context.Context, fileInfo *ent
 	//Open fileInfo with read only mode
 	f, err = os.OpenFile(localFilePath, os.O_RDONLY, 0777)
 	if err != nil {
-		log.Error(ctx,"Can't open fileInfo, err:", err)
+		log.Error(ctx, "Can't open fileInfo",
+			log.Err(err),
+			log.String("localFilePath", localFilePath))
 		return nil, err
 	}
 

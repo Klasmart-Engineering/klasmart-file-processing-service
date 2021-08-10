@@ -8,7 +8,7 @@ import (
 
 func main(){
 	//load config
-	config.LoadYAML("./settings.yaml")
+	config.MustLoad("./settings.yaml")
 
 	//start Handler
 	srv := service.GetFileProcessingService()

@@ -23,6 +23,10 @@ func (a AttachmentProcessor) HandleFile(ctx context.Context, f *entity.HandleFil
 		return core.GetRemoveJPEGMetaDataHandler().Do(ctx, f)
 	case "png":
 		return core.GetRemovePNGMetaDataHandler().Do(ctx, f)
+	case "git":
+		return nil
+	case "bmp":
+		return nil
 	}
 	return nil
 }

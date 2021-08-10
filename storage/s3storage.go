@@ -10,7 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/log"
+	"gitlab.badanamu.com.cn/calmisland/common-log/log"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -169,7 +169,7 @@ func (s *S3Storage) DownloadFile(ctx context.Context, filePath string) (io.Reade
 	})
 
 	if err != nil {
-		log.Error(ctx,"Download resource failed, err: %v", err)
+		log.Error(ctx, "download resource failed", log.Err(err))
 		return nil, err
 	}
 
