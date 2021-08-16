@@ -39,16 +39,16 @@ pipelines:
             - pip3 install -U awscli
 
             - export BRANCH_TAG=$(echo "$BITBUCKET_BRANCH" | sed -E 's/([^0-9a-zA-Z]+)/-/g' | awk '{print tolower($0)}')
-            - export REPO=$DOCKER_REPO_URL/kfps-backend # DOCKER_REPO_URL is workspace wide variable
+            - export REPO=$DOCKER_REPO_URL/kidsloop-file-processing-service # DOCKER_REPO_URL is workspace wide variable
 
             - aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin $DOCKER_REPO_URL
             - aws s3 cp s3://$S3_BUCKET/keys/ deploy/ --recursive --sse aws:kms --sse-kms-key-id $KMS_KEY
 
-            - docker build -t kfps-backend deploy/
-            - docker tag kfps-backend:latest $REPO:$BRANCH_TAG
-            - docker tag kfps-backend:latest $REPO:$BRANCH_TAG-latest
-            - docker tag kfps-backend:latest $REPO:$BRANCH_TAG-$BITBUCKET_BUILD_NUMBER
-            - docker tag kfps-backend:latest $REPO:$BRANCH_TAG-${BITBUCKET_COMMIT:0:7}
+            - docker build -t kidsloop-file-processing-service deploy/
+            - docker tag kidsloop-file-processing-service:latest $REPO:$BRANCH_TAG
+            - docker tag kidsloop-file-processing-service:latest $REPO:$BRANCH_TAG-latest
+            - docker tag kidsloop-file-processing-service:latest $REPO:$BRANCH_TAG-$BITBUCKET_BUILD_NUMBER
+            - docker tag kidsloop-file-processing-service:latest $REPO:$BRANCH_TAG-${BITBUCKET_COMMIT:0:7}
 
             - docker push $REPO:$BRANCH_TAG
             - docker push $REPO:$BRANCH_TAG-latest
@@ -58,8 +58,8 @@ pipelines:
             - export AWS_ACCESS_KEY_ID=$AWS_ALPHA_KEY_ID && export AWS_SECRET_ACCESS_KEY=$AWS_ALPHA_ACCESS_KEY && export AWS_DEFAULT_REGION=ap-northeast-2
             - aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $DOCKER_ALPHA_REPO
 
-            - docker tag kfps-backend:latest $KLCP_BACKEND_ALPHA:latest
-            - docker push $KLCP_BACKEND_ALPHA:latest
+            - docker tag kfps-backend:latest kidsloop-file-processing-service-alpha:latest
+            - docker push kidsloop-file-processing-service-alpha:latest
 
           after-script:
             - BUILD_STATUS="success"

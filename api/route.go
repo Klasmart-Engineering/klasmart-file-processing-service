@@ -1,6 +1,6 @@
 package api
 
-func (s *Server) route(){
+func (s *Server) route() {
 	v1 := s.engine.Group("/v1")
 	processor := v1.Group("/processor")
 	{
@@ -11,4 +11,6 @@ func (s *Server) route(){
 
 		processor.GET("/info", s.mustToken, s.supportClassifies)
 	}
+
+	v1.GET("/version", s.version)
 }
