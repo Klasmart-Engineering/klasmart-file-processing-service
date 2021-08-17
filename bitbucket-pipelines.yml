@@ -14,6 +14,7 @@ pipelines:
             - go env -w GO111MODULE=on
             - go env -w GOPRIVATE=gitlab.badanamu.com.cn
             - env
+            - export NETRC=/root/.netrc
             - export GIT_TERMINAL_PROMPT=1
             - go get
             - go mod vendor
