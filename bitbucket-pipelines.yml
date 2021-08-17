@@ -10,8 +10,7 @@ pipelines:
             - echo "machine gitlab.badanamu.com.cn" >> ~/.netrc
             - echo "  login $GITLAB_USERNAME"       >> ~/.netrc
             - echo "  password $GITLAB_PASSWORD"    >> ~/.netrc
-            - echo $GITLAB_USERNAME
-            - echo $GITLAB_PASSWORD
+            - cat ~/.netrc
             - set -x
             - go env -w GO111MODULE=on
             - go env -w GOPRIVATE=gitlab.badanamu.com.cn
