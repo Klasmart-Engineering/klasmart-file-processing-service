@@ -1,6 +1,6 @@
 pipelines:
   branches:
-    main:
+    global/test:
       - step:
           name: "Compile"
           image: golang:alpine
