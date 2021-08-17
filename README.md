@@ -14,7 +14,7 @@
 
 | Processor  | File extensions | Note             |
 | ---------- | --------------- | ---------------- |
-| attachment | jpg, jpeg, png  | Remove meta data |
+| attachment | jpg, jpeg  | Remove meta data |
 
 
 
