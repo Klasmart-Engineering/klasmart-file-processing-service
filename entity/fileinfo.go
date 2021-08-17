@@ -7,16 +7,17 @@ import (
 	"strings"
 )
 
-const(
+const (
 	MQPrefix = "kfps:"
 )
 
 type FileInfo struct {
-	Classify string
+	Classify  string
 	Extension string
-	Name string
-	Path string
+	Name      string
+	Path      string
 }
+
 func (f FileInfo) Topic() string {
 	return ""
 }
@@ -29,8 +30,8 @@ func ParseFileInfo(topic, message string) *FileInfo {
 
 	namePairs := strings.Split(message, "/")
 	extensionPairs := strings.Split(message, ".")
-	name := namePairs[len(namePairs) - 1]
-	extension := extensionPairs[len(extensionPairs) - 1]
+	name := namePairs[len(namePairs)-1]
+	extension := extensionPairs[len(extensionPairs)-1]
 
 	return &FileInfo{
 		Classify:  classify,
@@ -41,7 +42,7 @@ func ParseFileInfo(topic, message string) *FileInfo {
 }
 
 type HandleFileParams struct {
-	Classify string
+	Classify  string
 	Extension string
 	Name      string
 	LocalFile *os.File
@@ -50,8 +51,14 @@ type HandleFileParams struct {
 	DistFile *os.File
 	DistPath string
 }
-func (h *HandleFileParams) CreateOutputFile(ctx context.Context) (*os.File, error){
-	path := os.TempDir() + "/" + h.Name + "-handled"
+
+func (h *HandleFileParams) OutputFilePath(ctx context.Context) string {
+	path := os.TempDir() + string(os.PathSeparator) + h.Name + "-handled"
+	h.DistPath = path
+	return path
+}
+func (h *HandleFileParams) CreateOutputFile(ctx context.Context) (*os.File, error) {
+	path := h.OutputFilePath(ctx)
 	dst, err := os.Create(path)
 	if err != nil {
 		log.Error(ctx, "Can't create dist file",
@@ -61,18 +68,17 @@ func (h *HandleFileParams) CreateOutputFile(ctx context.Context) (*os.File, erro
 	}
 
 	h.DistFile = dst
-	h.DistPath = path
 	return dst, nil
 }
 func (h *HandleFileParams) CleanOutputFile(ctx context.Context) {
 	if h.DistFile != nil {
 		h.DistFile.Close()
-		err := os.Remove(h.DistPath)
-		if err != nil {
-			log.Error(ctx, "Can't remove output file",
-				log.Err(err),
-				log.Any("params", h))
-		}
+	}
+	err := os.Remove(h.DistPath)
+	if err != nil {
+		log.Error(ctx, "Can't remove output file",
+			log.Err(err),
+			log.Any("params", h))
 	}
 }
 func (h *HandleFileParams) CleanLocalFile(ctx context.Context) {

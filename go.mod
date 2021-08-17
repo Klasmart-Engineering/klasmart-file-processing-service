@@ -4,6 +4,9 @@ go 1.16
 
 require (
 	github.com/aws/aws-sdk-go v1.40.11
+	github.com/dsoprea/go-exif v0.0.0-20210625224831-a6301f85c82b // indirect
+	github.com/dsoprea/go-jpeg-image-structure v0.0.0-20210512043942-b434301c6836 // indirect
+	github.com/dsoprea/go-png-image-structure v0.0.0-20210512210324-29b889a6093d // indirect
 	github.com/gin-gonic/gin v1.7.2 // indirect
 	github.com/go-redis/redis v6.15.9+incompatible // indirect
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
