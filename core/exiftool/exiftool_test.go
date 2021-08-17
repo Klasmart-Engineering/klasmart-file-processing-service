@@ -14,7 +14,7 @@ func TestStartExifTool(t *testing.T) {
 	err = exifTool.RemoveMetadata(context.Background(),
 		"D:\\Work\\Temp\\cms_test.jpg",
 		"D:\\Work\\Temp\\cms_test_out.jpg",
-		jpegTags,
+		JpegTags,
 	)
 	if err != nil {
 		panic(err)
@@ -22,7 +22,7 @@ func TestStartExifTool(t *testing.T) {
 	err = exifTool.RemoveMetadata(context.Background(),
 		"D:\\Work\\Temp\\cms_test2.jpg",
 		"D:\\Work\\Temp\\cms_test_out2.jpg",
-		jpegTags,
+		JpegTags,
 	)
 	if err != nil {
 		panic(err)

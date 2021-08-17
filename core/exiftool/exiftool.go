@@ -104,6 +104,13 @@ func (e *ExifTool) runCommand(ctx context.Context, args []string) (string, error
 	//run command
 	e.execute()
 
+	if !e.scanner.Scan() {
+		log.Error(ctx, "nothing on stdMergedOut",
+			log.Err(e.scanner.Err()),
+			log.Strings("args", args))
+		return "", e.scanner.Err()
+	}
+
 	//read result
 	if e.scanner.Err() != nil {
 		log.Error(ctx, "execute remove metadata failed",
