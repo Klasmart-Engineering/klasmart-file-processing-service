@@ -14,7 +14,7 @@ pipelines:
             - go env -w GO111MODULE=on
             - go env -w GOPRIVATE=gitlab.badanamu.com.cn
             - export GIT_TERMINAL_PROMPT=1
-            - go get
+            - go get -v
             - go mod vendor
             - go build -o deploy/handler -ldflags "-X gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/constant.GitHash=$(git rev-list -1 HEAD) -X gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/constant.BuildTimestamp=$(date +%s)"
             - echo $BUILD_RESULT
