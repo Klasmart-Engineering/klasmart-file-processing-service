@@ -14,6 +14,7 @@ pipelines:
             - set -x
             - go env -w GO111MODULE=on
             - go env -w GOPRIVATE=gitlab.badanamu.com.cn
+            - export GIT_TERMINAL_PROMPT=1
             - go get
             - go mod tidy
             - go mod vendor
