@@ -13,6 +13,7 @@ pipelines:
             - set -x
             - go env -w GO111MODULE=on
             - go env -w GOPRIVATE=gitlab.badanamu.com.cn
+            - go env
             - env
             - export NETRC=/root/.netrc
             - go get
