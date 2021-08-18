@@ -33,7 +33,7 @@ func (a AttachmentProcessor) HandleFile(ctx context.Context, f *entity.HandleFil
 
 func (a AttachmentProcessor) SupportExtensions() []string {
 	return []string{
-		"jpg", "png",
+		"jpg", "jpeg",
 	}
 }
 

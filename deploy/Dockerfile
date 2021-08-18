@@ -1,4 +1,7 @@
-FROM ubuntu
+FROM alpine
 COPY ./handler /handler
-RUN apt-get update &&  apt-get install -y exiftool
+RUN apk add --update --no-cache --virtual .tmp-build-deps \
+    gcc libc-dev linux-headers postgresql-dev musl-dev zlib zlib-dev \
+    libressl-dev libffi-dev
+RUN apk add exiftool
 ENTRYPOINT [ "/handler" ]
