@@ -1,6 +1,6 @@
 pipelines:
   branches:
-    global/test:
+    main:
       - step:
           name: "Compile"
           image: golang:alpine
@@ -13,8 +13,6 @@ pipelines:
             - set -x
             - go env -w GO111MODULE=on
             - export GOPRIVATE=gitlab.badanamu.com.cn
-            - go env
-            - env
             - export NETRC=/root/.netrc
             - go get
             - go mod vendor
