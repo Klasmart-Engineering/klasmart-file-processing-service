@@ -13,5 +13,5 @@ func (s *Server) route() {
 	}
 
 	v1.GET("/version", s.version)
-	v1.GET("/", s.health)
+	s.engine.GET("/", s.health)
 }
