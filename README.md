@@ -17,7 +17,6 @@
 | attachment | jpg, jpeg  | Remove meta data |
 
 
-
 # Deploy
 
 ​	kidsloop-file-processing-service needs the environment as follows：
