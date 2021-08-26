@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-type IFileProcessor interface{
+type IFileProcessor interface {
 	HandleFile(ctx context.Context, f *entity.HandleFileParams) error
 	SupportExtensions() []string
 }
@@ -22,7 +22,7 @@ func (a AttachmentProcessor) HandleFile(ctx context.Context, f *entity.HandleFil
 	case "jpeg":
 		return core.GetRemoveJPEGMetaDataHandler().Do(ctx, f)
 	case "png":
-		return core.GetRemovePNGMetaDataHandler().Do(ctx, f)
+		return nil
 	case "git":
 		return nil
 	case "bmp":
@@ -33,13 +33,12 @@ func (a AttachmentProcessor) HandleFile(ctx context.Context, f *entity.HandleFil
 
 func (a AttachmentProcessor) SupportExtensions() []string {
 	return []string{
-		"jpg", "png",
+		"jpg", "jpeg",
 	}
 }
 
-
 var (
-	_attachmentProcessor *AttachmentProcessor
+	_attachmentProcessor     *AttachmentProcessor
 	_attachmentProcessorOnce sync.Once
 )
 

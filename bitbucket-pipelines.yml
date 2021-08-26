@@ -10,14 +10,11 @@ pipelines:
             - echo "machine gitlab.badanamu.com.cn" >> ~/.netrc
             - echo "  login $GITLAB_USERNAME"       >> ~/.netrc
             - echo "  password $GITLAB_PASSWORD"    >> ~/.netrc
-            - echo $GITLAB_USERNAME
-            - echo $GITLAB_PASSWORD
-            - cat ~/.gitconfig
             - set -x
             - go env -w GO111MODULE=on
-            - go env -w GOPRIVATE=gitlab.badanamu.com.cn
+            - export GOPRIVATE=gitlab.badanamu.com.cn
+            - export NETRC=/root/.netrc
             - go get
-            - go mod tidy
             - go mod vendor
             - go build -o deploy/handler -ldflags "-X gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/constant.GitHash=$(git rev-list -1 HEAD) -X gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/constant.BuildTimestamp=$(date +%s)"
             - echo $BUILD_RESULT
@@ -61,8 +58,9 @@ pipelines:
             - export AWS_ACCESS_KEY_ID=$AWS_ALPHA_KEY_ID && export AWS_SECRET_ACCESS_KEY=$AWS_ALPHA_ACCESS_KEY && export AWS_DEFAULT_REGION=ap-northeast-2
             - aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $DOCKER_ALPHA_REPO
 
-            - docker tag kidsloop-file-processing-service:latest kidsloop-file-processing-service-alpha:latest
-            - docker push kidsloop-file-processing-service-alpha:latest
+            - export ALPHA_DOCKER_REPO_URL="871601235178.dkr.ecr.ap-northeast-2.amazonaws.com"
+            - docker tag kidsloop-file-processing-service:latest ${ALPHA_DOCKER_REPO_URL}/kidsloop-file-processing-service:latest
+            - docker push ${ALPHA_DOCKER_REPO_URL}/kidsloop-file-processing-service:latest
 
           after-script:
             - BUILD_STATUS="success"

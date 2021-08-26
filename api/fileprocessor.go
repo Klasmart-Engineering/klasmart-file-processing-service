@@ -47,7 +47,14 @@ func (s *Server) pendingList(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, messages)
+	size := 0
+	for key := range messages {
+		size += len(messages[key])
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"size":     size,
+		"messages": messages,
+	})
 }
 
 func (s *Server) failedList(c *gin.Context) {

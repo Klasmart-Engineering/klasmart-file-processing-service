@@ -127,6 +127,10 @@ func (fp *FileProcessingService) handleMessage(ctx context.Context,
 
 	err = fp.backupFile(ctx, fileInfo, fileParams.LocalFile)
 	if err != nil {
+		log.Error(ctx, "backupFile failed",
+			log.Err(err),
+			log.Any("fileInfo", fileInfo),
+			log.Any("fileParams", fileParams))
 		return err
 	}
 
@@ -143,6 +147,10 @@ func (fp *FileProcessingService) handleMessage(ctx context.Context,
 	//upload file
 	err = fp.uploadHandledFile(ctx, fileInfo, fileParams.DistPath)
 	if err != nil {
+		log.Error(ctx, "uploadHandledFile failed",
+			log.Err(err),
+			log.Any("fileInfo", fileInfo),
+			log.Any("fileParams", fileParams))
 		return err
 	}
 

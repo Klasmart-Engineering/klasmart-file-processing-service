@@ -12,3 +12,9 @@ func (s *Server) version(c *gin.Context) {
 		"build_timestamp": constant.BuildTimestamp,
 	})
 }
+
+func (s *Server) health(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"status": "running",
+	})
+}

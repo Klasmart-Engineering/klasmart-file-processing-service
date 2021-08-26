@@ -14,7 +14,7 @@
 
 | Processor  | File extensions | Note             |
 | ---------- | --------------- | ---------------- |
-| attachment | jpg, jpeg, png  | Remove meta data |
+| attachment | jpg, jpeg  | Remove meta data |
 
 
 
@@ -22,16 +22,20 @@
 
 ​	kidsloop-file-processing-service needs the environment as follows：
 
-| Key          | Value                          |
-| ------------ | ------------------------------ |
-| **OS**       | Linux 4.19 or higher           |
-| **CPU**      | 2.10 GHz and more than 1 cores |
-| **RAM**      | 4GB or more                    |
-| **ROM**      | 50GB or more                   |
-| **Software** | Golang 1.16 or higher          |
-| **Service**  | Redis 6.2.4 or higher          |
+| Key          | Value                                            |
+| ------------ | ------------------------------------------------ |
+| **OS**       | Linux 4.19 or higher                             |
+| **CPU**      | 2.10 GHz and more than 1 cores                   |
+| **RAM**      | 4GB or more                                      |
+| **ROM**      | 50GB or more                                     |
+| **Software** | Golang 1.16 or higher,  exiftool 12.30 or higher |
+| **Service**  | Redis 6.2.4 or higher                            |
 
 ​	kidsloop-file-processing-service needs a MQ engine. Now the only supported MQ engine is Redis. We plan to support more MQ engine but for now redis is the only supported MQ.
+
+​	kidsloop-file-processing-service needs needs [ExifTool](https://www.sno.phy.queensu.ca/~phil/exiftool/) to be installed.
+
+​	On Ubuntu, you can install **ExifTool** via: `sudo apt-get install exiftool`
 
 ## Steps
 

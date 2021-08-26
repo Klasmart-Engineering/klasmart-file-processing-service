@@ -76,7 +76,7 @@ func (fp *FileProcessingService) downloadFile(ctx context.Context, fileInfo *ent
 		return nil, err
 	}
 
-	localFilePath := os.TempDir() + "/" + fileInfo.Name
+	localFilePath := os.TempDir() + string(os.PathSeparator) + fileInfo.Name
 
 	f, err := os.OpenFile(localFilePath, os.O_CREATE|os.O_RDWR, 0777)
 	if err != nil {
@@ -106,13 +106,13 @@ func (fp *FileProcessingService) downloadFile(ctx context.Context, fileInfo *ent
 	return &entity.HandleFileParams{
 		Extension: fileInfo.Extension,
 		Name:      fileInfo.Name,
-		Classify: fileInfo.Classify,
+		Classify:  fileInfo.Classify,
 		LocalFile: f,
 		LocalPath: localFilePath,
 	}, nil
 }
 
-func (fp *FileProcessingService) containsString(extension string, supportedExtensions []string) bool{
+func (fp *FileProcessingService) containsString(extension string, supportedExtensions []string) bool {
 	for i := range supportedExtensions {
 		if supportedExtensions[i] == extension {
 			return true
