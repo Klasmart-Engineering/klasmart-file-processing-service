@@ -23,8 +23,8 @@ type S3StorageConfig struct {
 	Bucket     string
 	Region     string
 	Accelerate bool
-	SecretID string
-	SecretKey string
+	SecretID   string
+	SecretKey  string
 }
 
 type S3Storage struct {
@@ -34,7 +34,7 @@ type S3Storage struct {
 	endpoint   string
 	accelerate bool
 
-	secretID string
+	secretID  string
 	secretKey string
 }
 
@@ -73,14 +73,17 @@ func (s *S3Storage) OpenStorage(ctx context.Context) error {
 	}
 	flag := !endPointInfo.isHttps
 
-	sess, err := session.NewSession(&aws.Config{
+	cfg := &aws.Config{
 		Endpoint:         endPointInfo.endpoint,
 		Region:           aws.String(s.region),
 		S3UseAccelerate:  aws.Bool(s.accelerate),
 		DisableSSL:       aws.Bool(flag),
 		S3ForcePathStyle: aws.Bool(flag),
-		Credentials: 	credentials.NewStaticCredentials(s.secretID, s.secretKey, ""),
-	})
+	}
+	if s.secretID != "" && s.secretKey != "" {
+		cfg.Credentials = credentials.NewStaticCredentials(s.secretID, s.secretKey, "")
+	}
+	sess, err := session.NewSession(cfg)
 	if err != nil {
 		return err
 	}
@@ -190,7 +193,6 @@ func (s *S3Storage) ExistFile(ctx context.Context, filePath string) (int64, bool
 	return *res.ContentLength, true
 }
 
-
 func (s *S3Storage) fetchFileContentType(ctx context.Context, key string) (string, error) {
 	fileNamePairs := strings.Split(key, ".")
 	if len(fileNamePairs) < 2 {
@@ -253,7 +255,7 @@ func newS3Storage(c S3StorageConfig) IStorage {
 		region:     c.Region,
 		endpoint:   c.Endpoint,
 		accelerate: c.Accelerate,
-		secretID: 	c.SecretID,
-		secretKey: 	c.SecretKey,
+		secretID:   c.SecretID,
+		secretKey:  c.SecretKey,
 	}
 }
