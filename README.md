@@ -32,7 +32,7 @@
 
 ​	kidsloop-file-processing-service needs a MQ engine. Now the only supported MQ engine is Redis. We plan to support more MQ engine but for now redis is the only supported MQ.
 
-​	kidsloop-file-processing-service needs needs [ExifTool](https://www.sno.phy.queensu.ca/~phil/exiftool/) to be installed.
+​	kidsloop-file-processing-service needs [ExifTool](https://www.sno.phy.queensu.ca/~phil/exiftool/) to be installed.
 
 ​	On Ubuntu, you can install **ExifTool** via: `sudo apt-get install exiftool`
 
