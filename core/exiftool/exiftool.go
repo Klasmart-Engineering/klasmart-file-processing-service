@@ -5,11 +5,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"gitlab.badanamu.com.cn/calmisland/common-log/log"
 	"io"
 	"os/exec"
 	"runtime"
 	"sync"
+
+	"gitlab.badanamu.com.cn/calmisland/common-log/log"
+	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/config"
 )
 
 const (
@@ -178,6 +180,9 @@ func GetExifTool() *ExifTool {
 	_exifToolOnce.Do(func() {
 		_exifTool = &ExifTool{
 			exifToolPath: defaultExifToolPath,
+		}
+		if config.Get().Core.ExifToolPath != "" {
+			_exifTool.exifToolPath = config.Get().Core.ExifToolPath
 		}
 	})
 	return _exifTool
