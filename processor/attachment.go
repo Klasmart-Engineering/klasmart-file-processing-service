@@ -2,9 +2,11 @@ package processor
 
 import (
 	"context"
+	"strings"
+	"sync"
+
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/core"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/entity"
-	"sync"
 )
 
 type IFileProcessor interface {
@@ -16,11 +18,17 @@ type AttachmentProcessor struct {
 }
 
 func (a AttachmentProcessor) HandleFile(ctx context.Context, f *entity.HandleFileParams) error {
-	switch f.Extension {
+	switch strings.ToLower(f.Extension) {
 	case "jpg":
 		return core.GetRemoveJPEGMetaDataHandler().Do(ctx, f)
 	case "jpeg":
 		return core.GetRemoveJPEGMetaDataHandler().Do(ctx, f)
+	case "mp4":
+		return core.GetRemoveMP4MetaDataHandler().Do(ctx, f)
+	case "mov":
+		return core.GetRemoveMOVMetaDataHandler().Do(ctx, f)
+	case "mp3":
+		return core.GetRemoveMP3MetaDataHandler().Do(ctx, f)
 	case "png":
 		return nil
 	case "git":
@@ -33,7 +41,7 @@ func (a AttachmentProcessor) HandleFile(ctx context.Context, f *entity.HandleFil
 
 func (a AttachmentProcessor) SupportExtensions() []string {
 	return []string{
-		"jpg", "jpeg",
+		"jpg", "jpeg", "mp4", "mp3", "mov",
 	}
 }
 

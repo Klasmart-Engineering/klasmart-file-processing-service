@@ -8,7 +8,7 @@ import (
 	"gitlab.badanamu.com.cn/calmisland/imq"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/config"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/entity"
-	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/log"
+	fatal "gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/log"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/runtime"
 )
 

@@ -12,4 +12,16 @@ var (
 		//GPS
 		"GPSLongitude", "GPSLatitude", "GPSAltitude",
 	}
+	Mp4Tags = []string{
+		//Comments
+		"Comment",
+		//Tags
+		"Category",
+	}
+	MovTags = []string{
+		//Comments
+		"Comment",
+		//Tags
+		"Category",
+	}
 )

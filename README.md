@@ -68,6 +68,8 @@
 | log       | level                    | N        | log level, default "debug"                             |
 |           | failed_file              | N        | save message file path when it process failed          |
 |           | std_out                  | N        | service print logs in stdandard output                 |
+| core      | exiftool_path            | N        | exiftool program path                                  |
+|           | eyeD3_path               | N        | eyeD3 program path                                     |
 
 ​	Here is an example of a complete settings file:
 
@@ -93,6 +95,9 @@ log:
   level: "debug"
   failed_file: "./failed.json"
   std_out: true
+ core:
+  exiftool_path: "/usr/bin/exiftool"
+  eyeD3_path: "/usr/local/bin/eyed3_py.py"
 ```
 
 ​	You can also set settings via environment variables, environment variables definition is as follows:
@@ -116,6 +121,8 @@ log:
 | log.level                   | N        | log level, default "debug"                             |
 | log.failed_file             | N        | save message file path when it process failed          |
 | log.std_out                 | N        | service print logs in stdandard output                 |
+| core.exiftool               | N        | exiftool program path                                  |
+| core.eyeD3                  | N        | eyeD3 program path                                     |
 
 # Web API
 
