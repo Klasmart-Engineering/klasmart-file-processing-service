@@ -3,3 +3,4 @@
 *.json
 go.sum
 settings.yaml
+kidsloop-file-processing-service*
