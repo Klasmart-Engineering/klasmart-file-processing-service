@@ -14,6 +14,7 @@ pipelines:
             - go env -w GO111MODULE=on
             - export GOPRIVATE=gitlab.badanamu.com.cn
             - export NETRC=/root/.netrc
+            - go mod tidy
             - go get
             - go mod vendor
             - go build -o deploy/handler -ldflags "-X gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/constant.GitHash=$(git rev-list -1 HEAD) -X gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/constant.BuildTimestamp=$(date +%s)"
