@@ -2,11 +2,13 @@ package service
 
 import (
 	"context"
+	"io"
+	"os"
+	"strings"
+
 	"gitlab.badanamu.com.cn/calmisland/common-log/log"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/entity"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/storage"
-	"io"
-	"os"
 )
 
 func (fp *FileProcessingService) removeUnusedFiles(ctx context.Context, filePath []string) {
@@ -113,6 +115,7 @@ func (fp *FileProcessingService) downloadFile(ctx context.Context, fileInfo *ent
 }
 
 func (fp *FileProcessingService) containsString(extension string, supportedExtensions []string) bool {
+	extension = strings.ToLower(extension)
 	for i := range supportedExtensions {
 		if supportedExtensions[i] == extension {
 			return true

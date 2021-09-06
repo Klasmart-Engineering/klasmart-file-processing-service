@@ -14,7 +14,7 @@
 
 | Processor  | File extensions | Note             |
 | ---------- | --------------- | ---------------- |
-| attachment | jpg, jpeg  | Remove meta data |
+| attachment | jpg, jpeg, mp3, mp4, mov  | Remove meta data |
 
 
 # Deploy
