@@ -7,5 +7,5 @@ RUN apk add --update --no-cache --virtual .tmp-build-deps \
 RUN apk add exiftool
 RUN apk add py3-pip
 RUN pip install eyed3
-RUN export core.eyed3=/eyed3_py.py
+RUN export core__exiftool=/eyed3_py.py
 ENTRYPOINT [ "/handler" ]
