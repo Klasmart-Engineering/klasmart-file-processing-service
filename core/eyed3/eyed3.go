@@ -30,7 +30,7 @@ func (e *EyeD3Tool) RemoveMP3MetaData(ctx context.Context, fileName string) erro
 	cmd.Stderr = stderr
 	err := cmd.Run()
 	if err != nil {
-		log.Error(ctx, "Run eyeD3 failed",
+		log.Error(ctx, "Run eyed3 failed",
 			log.Err(err),
 			log.String("stderr", stderr.String()),
 			log.String("stdout", out.String()),

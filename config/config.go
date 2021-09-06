@@ -94,7 +94,7 @@ func LoadEnv() {
 		},
 		Core: CoreConfig{
 			ExifToolPath: getEnvStr("core.exiftool", cfg.Core.ExifToolPath),
-			EyeD3Path:    getEnvStr("core.eyeD3", cfg.Core.EyeD3Path),
+			EyeD3Path:    getEnvStr("core.eyed3", cfg.Core.EyeD3Path),
 		},
 	}
 }
