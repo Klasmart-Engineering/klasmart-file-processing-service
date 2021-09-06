@@ -96,6 +96,9 @@ func (fp *FileProcessingService) handleMessage(ctx context.Context,
 	handler func(ctx context.Context, f *entity.HandleFileParams) error) error {
 	//parse file info
 
+	log.Info(ctx, "ParseFileInfo",
+		log.String("topic", topic),
+		log.String("message", message))
 	fileInfo := entity.ParseFileInfo(topic, message)
 	if fileInfo == nil {
 		log.Info(ctx, "parseFileInfo failed",
@@ -103,9 +106,15 @@ func (fp *FileProcessingService) handleMessage(ctx context.Context,
 			log.String("message", message))
 		return nil
 	}
+	log.Info(ctx, "Check contains",
+		log.String("fileInfo.Extension", fileInfo.Extension),
+		log.Strings("fp.supportExtensionsMap[topic]", fp.supportExtensionsMap[topic]))
 	//ignore unsupported extension
 	supportExtension := fp.containsString(fileInfo.Extension, fp.supportExtensionsMap[topic])
 	if !supportExtension {
+		log.Info(ctx, "Unsupported extension",
+			log.String("fileInfo.Extension", fileInfo.Extension),
+			log.Strings("fp.supportExtensionsMap[topic]", fp.supportExtensionsMap[topic]))
 		return nil
 	}
 
