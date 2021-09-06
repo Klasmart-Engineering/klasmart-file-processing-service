@@ -6,6 +6,6 @@ RUN apk add --update --no-cache --virtual .tmp-build-deps \
     libressl-dev libffi-dev
 RUN apk add exiftool
 RUN apk add python3
-RUN pip install eyed3
+RUN pip3 install eyed3
 RUN export core.eyed3=/eyed3_py.py
 ENTRYPOINT [ "/handler" ]
