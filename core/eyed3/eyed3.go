@@ -23,7 +23,7 @@ func (e *EyeD3Tool) RemoveMP3MetaData(ctx context.Context, fileName string) erro
 		e.eyeD3Path,
 		fileName,
 	}
-	cmd := exec.Command("python", args...)
+	cmd := exec.Command("python3", args...)
 	out := new(bytes.Buffer)
 	stderr := new(bytes.Buffer)
 	cmd.Stdout = out
