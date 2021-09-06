@@ -1,4 +1,4 @@
-FROM python-alpine
+FROM alpine
 COPY ./handler /handler
 COPY ./eyed3_py.py /eyed3_py.py
 RUN apk add --update --no-cache --virtual .tmp-build-deps \
