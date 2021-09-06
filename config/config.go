@@ -93,8 +93,8 @@ func LoadEnv() {
 			StdOut:     getEnvBool("log.std_out", cfg.Log.StdOut),
 		},
 		Core: CoreConfig{
-			ExifToolPath: getEnvStr("core.exiftool", cfg.Core.ExifToolPath),
-			EyeD3Path:    getEnvStr("core.eyed3", cfg.Core.EyeD3Path),
+			ExifToolPath: getEnvStr("core__exiftool", cfg.Core.ExifToolPath),
+			EyeD3Path:    getEnvStr("core__eyed3", cfg.Core.EyeD3Path),
 		},
 	}
 }
