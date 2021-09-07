@@ -35,13 +35,15 @@ func (a AttachmentProcessor) HandleFile(ctx context.Context, f *entity.HandleFil
 		return nil
 	case "bmp":
 		return nil
+	case "docx", "xlsx", "pptx":
+		return core.GetRemoveOOXMLMetaDataHandler().Do(ctx, f)
 	}
 	return nil
 }
 
 func (a AttachmentProcessor) SupportExtensions() []string {
 	return []string{
-		"jpg", "jpeg", "mp4", "mp3", "mov",
+		"jpg", "jpeg", "mp4", "mp3", "mov", "docx", "xlsx", "pptx",
 	}
 }
 

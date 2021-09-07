@@ -5,17 +5,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"mime/multipart"
+	"net/http"
+	"net/url"
+	"strings"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"gitlab.badanamu.com.cn/calmisland/common-log/log"
-	"io"
-	"mime/multipart"
-	"net/http"
-	"net/url"
-	"strings"
 )
 
 type S3StorageConfig struct {
@@ -226,9 +227,9 @@ func (s *S3Storage) fetchFileContentType(ctx context.Context, key string) (strin
 	case "mp3":
 		return "audio/mp3", nil
 	case "docx":
-		return "application/msword", nil
+		return "application/vnd.openxmlformats-officedocument.wordprocessingml.document", nil
 	case "pptx":
-		return "application/vnd.ms-powerpoint", nil
+		return "application/vnd.openxmlformats-officedocument.presentationml.presentation", nil
 	case "doc":
 		return "application/msword", nil
 	case "ppt":
@@ -236,7 +237,7 @@ func (s *S3Storage) fetchFileContentType(ctx context.Context, key string) (strin
 	case "xls":
 		return "application/vnd.ms-excel", nil
 	case "xlsx":
-		return "application/vnd.ms-excel", nil
+		return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", nil
 	case "wav":
 		return "audio/wav", nil
 	case "mov":
