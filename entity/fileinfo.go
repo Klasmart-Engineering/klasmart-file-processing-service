@@ -22,11 +22,7 @@ func (f FileInfo) Topic() string {
 	return ""
 }
 
-func ParseFileInfo(topic, message string) *FileInfo {
-	if !strings.HasPrefix(topic, MQPrefix) {
-		return nil
-	}
-	classify := topic[len(MQPrefix):]
+func ParseFileInfo(message string) *FileInfo {
 
 	namePairs := strings.Split(message, "/")
 	extensionPairs := strings.Split(message, ".")
@@ -34,7 +30,6 @@ func ParseFileInfo(topic, message string) *FileInfo {
 	extension := extensionPairs[len(extensionPairs)-1]
 
 	return &FileInfo{
-		Classify:  classify,
 		Extension: extension,
 		Name:      name,
 		Path:      message,

@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
@@ -22,21 +21,23 @@ import (
 type S3StorageConfig struct {
 	Endpoint   string
 	Bucket     string
+	BucketOut  string
 	Region     string
 	Accelerate bool
-	SecretID   string
-	SecretKey  string
+	AWSSession *session.Session
+	//SecretID   string
+	//SecretKey  string
 }
 
 type S3Storage struct {
 	session    *session.Session
 	bucket     string
+	bucketOut  string
 	region     string
 	endpoint   string
 	accelerate bool
-
-	secretID  string
-	secretKey string
+	//secretID   string
+	//secretKey  string
 }
 
 type EndPointWithScheme struct {
@@ -68,28 +69,27 @@ func (s S3Storage) getEndpoint(ctx context.Context) (*EndPointWithScheme, error)
 
 func (s *S3Storage) OpenStorage(ctx context.Context) error {
 	//在~/.aws/credentials文件中保存secretId和secretKey
-	endPointInfo, err := s.getEndpoint(ctx)
-	if err != nil {
-		return err
-	}
-	flag := !endPointInfo.isHttps
+	//endPointInfo, err := s.getEndpoint(ctx)
+	//if err != nil {
+	//	return err
+	//}
+	//flag := !endPointInfo.isHttps
+	//
+	//cfg := &aws.Config{
+	//	Endpoint:         endPointInfo.endpoint,
+	//	Region: aws.String(s.region),
+	//	S3UseAccelerate:  aws.Bool(s.accelerate),
+	//	DisableSSL:       aws.Bool(flag),
+	//	S3ForcePathStyle: aws.Bool(flag),
+	//}
+	//if s.secretID != "" && s.secretKey != "" {
+	//	cfg.Credentials = credentials.NewStaticCredentials(s.secretID, s.secretKey, "")
+	//}
+	//sess, err := session.NewSession(cfg)
+	//if err != nil {
+	//	return err
+	//}
 
-	cfg := &aws.Config{
-		Endpoint:         endPointInfo.endpoint,
-		Region:           aws.String(s.region),
-		S3UseAccelerate:  aws.Bool(s.accelerate),
-		DisableSSL:       aws.Bool(flag),
-		S3ForcePathStyle: aws.Bool(flag),
-	}
-	if s.secretID != "" && s.secretKey != "" {
-		cfg.Credentials = credentials.NewStaticCredentials(s.secretID, s.secretKey, "")
-	}
-	sess, err := session.NewSession(cfg)
-	if err != nil {
-		return err
-	}
-
-	s.session = sess
 	return nil
 }
 func (s *S3Storage) CloseStorage(ctx context.Context) {
@@ -151,12 +151,13 @@ func (s *S3Storage) UploadFile(ctx context.Context, filePath string, fileStream 
 	}
 
 	_, err = uploader.Upload(&s3manager.UploadInput{
-		Bucket:      aws.String(s.bucket),
+		Bucket:      aws.String(s.bucketOut),
 		Key:         aws.String(filePath),
 		Body:        fileStream,
 		ContentType: aws.String(extension),
 	})
 	if err != nil {
+		fmt.Println("File upload failed, bucket: ", s.bucketOut, ", key:", filePath)
 		return err
 	}
 	return nil
@@ -253,10 +254,12 @@ func (s *S3Storage) fetchFileContentType(ctx context.Context, key string) (strin
 func newS3Storage(c S3StorageConfig) IStorage {
 	return &S3Storage{
 		bucket:     c.Bucket,
+		bucketOut:  c.BucketOut,
 		region:     c.Region,
 		endpoint:   c.Endpoint,
 		accelerate: c.Accelerate,
-		secretID:   c.SecretID,
-		secretKey:  c.SecretKey,
+		session:    c.AWSSession,
+		//secretID:   c.SecretID,
+		//secretKey:  c.SecretKey,
 	}
 }

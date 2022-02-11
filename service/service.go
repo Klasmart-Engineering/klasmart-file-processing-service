@@ -2,14 +2,14 @@ package service
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"sync"
 
 	"gitlab.badanamu.com.cn/calmisland/common-log/log"
 	"gitlab.badanamu.com.cn/calmisland/imq"
-	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/config"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/entity"
 	fatal "gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/log"
-	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/runtime"
 )
 
 type FileProcessingService struct {
@@ -20,101 +20,108 @@ type FileProcessingService struct {
 	quit                 chan struct{}
 }
 
-func (fp *FileProcessingService) Start() {
+func (fp *FileProcessingService) Handle(ctx context.Context, file string) error {
 	//init MQ
-	fp.initMQ()
+	//fp.initMQ()
 
 	//init route
 	fp.initProcessors()
 
-	//subscribe topics
-	fp.subscribeTopics()
+	for _, handler := range fp.handler {
 
-	log.Info(context.Background(), "Service is starting...")
+		err := fp.handleMessage(ctx, file, handler)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+
+	//subscribe topics
+	//fp.subscribeTopics()
+
+	//log.Info(context.Background(), "Service is starting...")
 	//<-fp.quit
 }
 
-func (fp *FileProcessingService) Stop() {
-	for i := range fp.mqChannels {
-		fp.mq.Unsubscribe(fp.mqChannels[i])
-	}
-	//fp.quit <- struct{}{}
-}
+//func (fp *FileProcessingService) Stop() {
+//	for i := range fp.mqChannels {
+//		fp.mq.Unsubscribe(fp.mqChannels[i])
+//	}
+//	//fp.quit <- struct{}{}
+//}
 
-func (fp *FileProcessingService) MQ() imq.IMessageQueue {
-	return fp.mq
-}
+//func (fp *FileProcessingService) MQ() imq.IMessageQueue {
+//	return fp.mq
+//}
+
 func (fp *FileProcessingService) SupportExtensions() map[string][]string {
 	return fp.supportExtensionsMap
 }
 
-func (fp *FileProcessingService) PendingMessages() (map[string][]string, error) {
-	res := make(map[string][]string)
-	var err error
-	for topic := range fp.supportExtensionsMap {
-		res[topic], err = fp.mq.PendingMessage(context.Background(), topic)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
+//func (fp *FileProcessingService) PendingMessages() (map[string][]string, error) {
+//	res := make(map[string][]string)
+//	var err error
+//	for topic := range fp.supportExtensionsMap {
+//		res[topic], err = fp.mq.PendingMessage(context.Background(), topic)
+//		if err != nil {
+//			return nil, err
+//		}
+//	}
+//	return res, nil
+//}
 
-func (fp *FileProcessingService) initMQ() {
-	mq, err := imq.CreateMessageQueue(imq.Config{
-		Drive:                  "redis-list",
-		RedisHost:              config.Get().MQ.RedisHost,
-		RedisPort:              config.Get().MQ.RedisPort,
-		RedisPassword:          config.Get().MQ.RedisPassword,
-		RedisFailedPersistence: config.Get().MQ.RedisFailedPersistence,
-		RedisHandlerThread:     config.Get().MQ.MaxWorker,
-	})
-	if err != nil {
-		panic(err)
-	}
-	fp.mq = mq
-}
+//func (fp *FileProcessingService) initMQ() {
+//	mq, err := imq.CreateMessageQueue(imq.Config{
+//		Drive:                  "redis-list",
+//		RedisHost:              config.Get().MQ.RedisHost,
+//		RedisPort:              config.Get().MQ.RedisPort,
+//		RedisPassword:          config.Get().MQ.RedisPassword,
+//		RedisFailedPersistence: config.Get().MQ.RedisFailedPersistence,
+//		RedisHandlerThread:     config.Get().MQ.MaxWorker,
+//	})
+//	if err != nil {
+//		panic(err)
+//	}
+//	fp.mq = mq
+//}
 
-func (fp *FileProcessingService) subscribeTopics() {
-	for topic, handler := range fp.handler {
-		cid := fp.mq.SubscribeWithReconnect(topic, func(ctx context.Context, message string) error {
-			//Update workers num
-			runtime.GetWorkersInfo().Add(topic, message)
-			defer runtime.GetWorkersInfo().Done(topic, message)
-			log.Info(ctx, "receive topic",
-				log.String("topic", topic),
-				log.String("message", message))
-			return fp.handleMessage(ctx, topic, message, handler)
-		})
-		fp.mqChannels = append(fp.mqChannels, cid)
-	}
-}
+//func (fp *FileProcessingService) subscribeTopics() {
+//	for topic, handler := range fp.handler {
+//		cid := fp.mq.SubscribeWithReconnect(topic, func(ctx context.Context, message string) error {
+//			//Update workers num
+//			runtime.GetWorkersInfo().Add(topic, message)
+//			defer runtime.GetWorkersInfo().Done(topic, message)
+//			log.Info(ctx, "receive topic",
+//				log.String("topic", topic),
+//				log.String("message", message))
+//			return fp.handleMessage(ctx, topic, message, handler)
+//		})
+//		fp.mqChannels = append(fp.mqChannels, cid)
+//	}
+//}
 
 func (fp *FileProcessingService) handleMessage(ctx context.Context,
-	topic string,
-	message string,
+	file string,
 	handler func(ctx context.Context, f *entity.HandleFileParams) error) error {
 	//parse file info
 
-	log.Info(ctx, "ParseFileInfo",
-		log.String("topic", topic),
-		log.String("message", message))
-	fileInfo := entity.ParseFileInfo(topic, message)
+	fileInfo := entity.ParseFileInfo(file)
 	if fileInfo == nil {
 		log.Info(ctx, "parseFileInfo failed",
-			log.String("topic", topic),
-			log.String("message", message))
-		return nil
+			log.String("file", file))
+		return errors.New("failed to parse info file: " + file)
 	}
+	fmt.Println(fp.supportExtensionsMap)
 	log.Info(ctx, "Check contains",
 		log.String("fileInfo.Extension", fileInfo.Extension),
-		log.Strings("fp.supportExtensionsMap[topic]", fp.supportExtensionsMap[topic]))
+		log.Strings("fp.supportExtensionsMap[topic]", fp.supportExtensionsMap["kfps:attachment"]))
 	//ignore unsupported extension
-	supportExtension := fp.containsString(fileInfo.Extension, fp.supportExtensionsMap[topic])
+	supportExtension := fp.containsString(fileInfo.Extension, fp.supportExtensionsMap["kfps:attachment"])
 	if !supportExtension {
 		log.Info(ctx, "Unsupported extension",
 			log.String("fileInfo.Extension", fileInfo.Extension),
-			log.Strings("fp.supportExtensionsMap[topic]", fp.supportExtensionsMap[topic]))
+			log.Strings("fp.supportExtensionsMap[topic]", fp.supportExtensionsMap["kfps:attachment"]))
 		return nil
 	}
 
@@ -125,8 +132,7 @@ func (fp *FileProcessingService) handleMessage(ctx context.Context,
 	if err != nil {
 		log.Error(ctx, "downloadFile failed",
 			log.Err(err),
-			log.Any("fileInfo", fileInfo),
-			log.String("message", message))
+			log.Any("fileInfo", fileInfo))
 		return err
 	}
 	log.Debug(ctx, "downloading success",
@@ -134,14 +140,14 @@ func (fp *FileProcessingService) handleMessage(ctx context.Context,
 	defer fileParams.CleanLocalFile(ctx)
 	defer fileParams.CleanOutputFile(ctx)
 
-	err = fp.backupFile(ctx, fileInfo, fileParams.LocalFile)
-	if err != nil {
-		log.Error(ctx, "backupFile failed",
-			log.Err(err),
-			log.Any("fileInfo", fileInfo),
-			log.Any("fileParams", fileParams))
-		return err
-	}
+	//err = fp.backupFile(ctx, fileInfo, fileParams.LocalFile)
+	//if err != nil {
+	//	log.Error(ctx, "backupFile failed",
+	//		log.Err(err),
+	//		log.Any("fileInfo", fileInfo),
+	//		log.Any("fileParams", fileParams))
+	//	return err
+	//}
 
 	//handle file
 	err = handler(ctx, fileParams)
@@ -150,7 +156,7 @@ func (fp *FileProcessingService) handleMessage(ctx context.Context,
 			log.Err(err),
 			log.Any("fileParams", fileParams))
 		fatal.Write(ctx, "Handle file failed, fileParams: %#v, err: %v", fileParams, err)
-		return nil
+		return err
 	}
 
 	//upload file
@@ -159,6 +165,7 @@ func (fp *FileProcessingService) handleMessage(ctx context.Context,
 		log.Error(ctx, "uploadHandledFile failed",
 			log.Err(err),
 			log.Any("fileInfo", fileInfo),
+			log.Any("source", fileInfo),
 			log.Any("fileParams", fileParams))
 		return err
 	}

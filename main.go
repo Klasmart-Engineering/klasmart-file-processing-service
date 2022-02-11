@@ -1,29 +1,78 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
-	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/api"
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/config"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/core"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/service"
 )
 
-func main() {
-	//load config
-	config.MustLoad("./settings.yaml")
+type SqsBody struct {
+	Records []struct {
+		EventName string
+		S3        struct {
+			Bucket struct {
+				Name string
+			}
+			Object struct {
+				Key  string
+				Size int
+			}
+		}
+	}
+}
 
-	//start Handler
-	srv := service.GetFileProcessingService()
-	srv.Start()
+func HandleRequest(ctx context.Context, sqsEvent events.SQSEvent) (string, error) {
 
-	//Init core
-	err := core.Init()
+	region := "eu-west-2"
+	awsSession, err := session.NewSession(&aws.Config{
+		Region: aws.String(region)},
+	)
 	if err != nil {
-		fmt.Println("Init core failed, err:", err)
-		panic(err)
+		return "", err
 	}
 
-	//start API
-	route := api.GetServer()
-	route.Start()
+	//load config
+	config.MustLoad("./settings.yaml", awsSession)
+
+	//Init core
+	err = core.Init()
+	if err != nil {
+		fmt.Println("Init core failed, err:", err)
+		return "", err
+	}
+
+	fmt.Printf("SQS Record size = %d\n", len(sqsEvent.Records))
+
+	for _, message := range sqsEvent.Records {
+
+		data := &SqsBody{}
+		err := json.Unmarshal([]byte(message.Body), &data)
+		if err != nil {
+			return "", err
+		}
+
+		bucket := data.Records[0].S3.Bucket.Name
+		key := data.Records[0].S3.Object.Key
+		fmt.Printf("Bucket = %s, Key = %s \n", bucket, key)
+
+		//start Handler
+		srv := service.GetFileProcessingService()
+		err = srv.Handle(ctx, key)
+		if err != nil {
+			return "", err
+		}
+
+	}
+	return fmt.Sprint("Process ran successfully"), nil
+}
+
+func main() {
+	lambda.Start(HandleRequest)
 }

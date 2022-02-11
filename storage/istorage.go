@@ -11,7 +11,7 @@ import (
 
 var (
 	_defaultStorageOnce sync.Once
-	_defaultStorage IStorage
+	_defaultStorage     IStorage
 )
 
 type IStorage interface {
@@ -33,13 +33,15 @@ func createStorageByEnv(ctx context.Context) {
 		_defaultStorage = newS3Storage(S3StorageConfig{
 			Endpoint:   conf.Storage.EndPoint,
 			Bucket:     conf.Storage.Bucket,
+			BucketOut:  conf.Storage.BucketOut,
 			Region:     conf.Storage.Region,
-			SecretID: 	conf.Storage.SecretID,
-			SecretKey:	conf.Storage.SecretKey,
+			AWSSession: conf.Storage.AWSSession,
+			//SecretID:   conf.Storage.SecretID,
+			//SecretKey:  conf.Storage.SecretKey,
 			Accelerate: conf.Storage.Accelerate,
 		})
 		err := _defaultStorage.OpenStorage(ctx)
-		if err !=nil {
+		if err != nil {
 			log.Error(ctx, "open storage failed",
 				log.Err(err),
 				log.Any("config", conf.Storage))
