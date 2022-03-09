@@ -1,60 +1,43 @@
 package config
 
 import (
+	"errors"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"io/ioutil"
-
-	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	Storage StorageConfig `yaml:"storage"`
-	API     APIConfig     `yaml:"api"`
-	Log     LogConfig     `yaml:"log"`
-	Core    CoreConfig    `yaml:"core"`
+	Storage StorageConfig
+	Log     LogConfig
+	Core    CoreConfig
 }
 
 type CoreConfig struct {
-	ExifToolPath string `yaml:"exiftool_path"`
-	EyeD3Path    string `yaml:"eyeD3_path"`
+	ExifToolPath string
+	EyeD3Path    string
+	//comma separated
+	Processors string
 }
 
 type LogConfig struct {
-	Level      string `yaml:"level"`
-	FailedFile string `yaml:"failed_file"`
-	StdOut     bool   `yaml:"std_out"`
-}
-
-type APIConfig struct {
-	Port      int    `yaml:"port"`
-	SecretKey string `yaml:"secret_key"`
+	Level      string
+	FailedFile string
+	StdOut     bool
 }
 
 type StorageConfig struct {
-	Driver string `yaml:"driver"`
+	Driver string
 
-	Accelerate bool   `yaml:"accelerate"`
-	EndPoint   string `yaml:"end_point"`
-	Bucket     string `yaml:"bucket"`
-	BucketOut  string `yaml:"bucket_out"`
-	Region     string `yaml:"region"`
+	Accelerate bool
+	EndPoint   string
+	Bucket     string
+	BucketOut  string
+	Region     string
 	AWSSession *session.Session
-	//SecretID  string `yaml:"secret_id"`
-	//SecretKey string `yaml:"secret_key"`
 }
 
 var (
 	cfg Config
 )
-
-func LoadYAML(path string) error {
-	data, err := ioutil.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	err = yaml.Unmarshal(data, &cfg)
-	return err
-}
 
 func LoadEnv(session *session.Session) {
 	cfg = Config{
@@ -66,12 +49,6 @@ func LoadEnv(session *session.Session) {
 			BucketOut:  getEnvStr("storage_bucket_out", cfg.Storage.Bucket),
 			Region:     getEnvStr("storage_region", cfg.Storage.Region),
 			AWSSession: session,
-			//SecretID:   getEnvStr("AWS_ACCESS_KEY_ID", cfg.Storage.SecretID),
-			//SecretKey:  getEnvStr("AWS_SECRET_ACCESS_KEY", cfg.Storage.SecretKey),
-		},
-		API: APIConfig{
-			Port:      getEnvInt("api_port", cfg.API.Port),
-			SecretKey: getEnvStr("api_secret_key", cfg.API.SecretKey),
 		},
 		Log: LogConfig{
 			Level:      getEnvStr("log_level", cfg.Log.Level),
@@ -81,14 +58,22 @@ func LoadEnv(session *session.Session) {
 		Core: CoreConfig{
 			ExifToolPath: getEnvStr("core__exiftool", cfg.Core.ExifToolPath),
 			EyeD3Path:    getEnvStr("core__eyed3", cfg.Core.EyeD3Path),
+			Processors:   getEnvStr("processors", cfg.Core.Processors),
 		},
 	}
 }
-func MustLoad(yaml string, session *session.Session) {
-	LoadYAML(yaml)
+func MustLoad(session *session.Session) {
 	LoadEnv(session)
 }
 
 func Get() Config {
 	return cfg
+}
+
+func GetRegion() (string, error) {
+	var region = getEnvStr("storage_region", cfg.Storage.Region)
+	if region == "" {
+		return "", errors.New("storage_region environment variable must be set")
+	}
+	return region, nil
 }

@@ -5,6 +5,27 @@ import (
 	"testing"
 )
 
+var (
+	jpgTestFileIn  = "../test/piiFile.jpg"
+	jpgTestFileOut = "/tmp/piiFile.jpg"
+)
+
+func TestStartExifToolJPG(t *testing.T) {
+	exifTool := GetExifTool()
+	err := exifTool.Start()
+	if err != nil {
+		panic(err)
+	}
+	err = exifTool.RemoveMetadata(context.Background(),
+		jpgTestFileIn,
+		jpgTestFileOut,
+		JpegTags,
+	)
+	if err != nil {
+		t.Errorf("Failed to process file %s", jpgTestFileIn)
+	}
+}
+
 func TestStartExifTool(t *testing.T) {
 	exifTool := GetExifTool()
 	err := exifTool.Start()
@@ -12,20 +33,11 @@ func TestStartExifTool(t *testing.T) {
 		panic(err)
 	}
 	err = exifTool.RemoveMetadata(context.Background(),
-		"D:\\Work\\Temp\\cms_test.jpg",
-		"D:\\Work\\Temp\\cms_test_out.jpg",
+		jpgTestFileIn,
+		jpgTestFileOut,
 		JpegTags,
 	)
 	if err != nil {
-		panic(err)
+		t.Errorf("Failed to process file %s", jpgTestFileIn)
 	}
-	err = exifTool.RemoveMetadata(context.Background(),
-		"D:\\Work\\Temp\\cms_test2.jpg",
-		"D:\\Work\\Temp\\cms_test_out2.jpg",
-		JpegTags,
-	)
-	if err != nil {
-		panic(err)
-	}
-	t.Log("Done")
 }

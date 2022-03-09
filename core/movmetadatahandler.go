@@ -2,8 +2,6 @@ package core
 
 import (
 	"context"
-	"sync"
-
 	"gitlab.badanamu.com.cn/calmisland/common-log/log"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/core/exiftool"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/entity"
@@ -27,14 +25,6 @@ func (ih *RemoveMOVMetaDataHandler) Do(ctx context.Context, f *entity.HandleFile
 	return nil
 }
 
-var (
-	_removeMOVMetaDataHandler     IFileHandler
-	_removeMOVMetaDataHandlerOnce sync.Once
-)
-
 func GetRemoveMOVMetaDataHandler() IFileHandler {
-	_removeMOVMetaDataHandlerOnce.Do(func() {
-		_removeMOVMetaDataHandler = new(RemoveMOVMetaDataHandler)
-	})
-	return _removeMOVMetaDataHandler
+	return new(RemoveMOVMetaDataHandler)
 }

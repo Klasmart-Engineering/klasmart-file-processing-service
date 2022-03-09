@@ -5,7 +5,6 @@ import (
 	"gitlab.badanamu.com.cn/calmisland/common-log/log"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/core/exiftool"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/entity"
-	"sync"
 )
 
 type IFileHandler interface {
@@ -30,14 +29,6 @@ func (ih *RemoveJPEGMetaDataHandler) Do(ctx context.Context, f *entity.HandleFil
 	return nil
 }
 
-var (
-	_removeJPEGMetaDataHandler     IFileHandler
-	_removeJPEGMetaDataHandlerOnce sync.Once
-)
-
 func GetRemoveJPEGMetaDataHandler() IFileHandler {
-	_removeJPEGMetaDataHandlerOnce.Do(func() {
-		_removeJPEGMetaDataHandler = new(RemoveJPEGMetaDataHandler)
-	})
-	return _removeJPEGMetaDataHandler
+	return new(RemoveJPEGMetaDataHandler)
 }

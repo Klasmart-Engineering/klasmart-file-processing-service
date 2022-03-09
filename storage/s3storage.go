@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -25,8 +24,6 @@ type S3StorageConfig struct {
 	Region     string
 	Accelerate bool
 	AWSSession *session.Session
-	//SecretID   string
-	//SecretKey  string
 }
 
 type S3Storage struct {
@@ -36,8 +33,6 @@ type S3Storage struct {
 	region     string
 	endpoint   string
 	accelerate bool
-	//secretID   string
-	//secretKey  string
 }
 
 type EndPointWithScheme struct {
@@ -96,50 +91,6 @@ func (s *S3Storage) CloseStorage(ctx context.Context) {
 
 }
 
-func getContentType(fileStream multipart.File) string {
-	data := make([]byte, 512)
-	fileStream.Read(data)
-
-	t := http.DetectContentType(data)
-	fileStream.Seek(0, io.SeekStart)
-	return t
-}
-
-func getContentTypeBytes(fileStream *bytes.Buffer) string {
-	data := make([]byte, 512)
-	fileStream.Read(data)
-
-	t := http.DetectContentType(data)
-	fileStream.Reset()
-	return t
-}
-
-func (s3s *S3Storage) ListAll() ([]string, error) {
-	svc := s3.New(s3s.session)
-	token := (*string)(nil)
-	ret := make([]string, 0)
-	for {
-		objs, err := svc.ListObjectsV2(&s3.ListObjectsV2Input{
-			Bucket:            aws.String(s3s.bucket),
-			MaxKeys:           aws.Int64(1000),
-			ContinuationToken: token,
-		})
-		token = objs.NextContinuationToken
-		if err != nil {
-			return nil, err
-		}
-		for i := range objs.Contents {
-			ret = append(ret, *objs.Contents[i].Key)
-			//fmt.Printf("Key:%s, Size:%d, ETag:%s, PartNumber:%d, StorageClass:%v\n",
-			//	v.Contents[i].Key, v.Contents[i].Size, v.Contents[i].ETag, v.Contents[i].PartNumber, v.Contents[i].StorageClass)
-		}
-		if !*objs.IsTruncated {
-			break
-		}
-	}
-
-	return ret, nil
-}
 func (s *S3Storage) UploadFile(ctx context.Context, filePath string, fileStream multipart.File) error {
 	uploader := s3manager.NewUploader(s.session)
 	//contentType := getContentType(fileStream)
@@ -259,7 +210,5 @@ func newS3Storage(c S3StorageConfig) IStorage {
 		endpoint:   c.Endpoint,
 		accelerate: c.Accelerate,
 		session:    c.AWSSession,
-		//secretID:   c.SecretID,
-		//secretKey:  c.SecretKey,
 	}
 }

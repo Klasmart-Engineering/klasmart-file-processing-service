@@ -7,7 +7,6 @@ import (
 	"io"
 	"io/ioutil"
 	"strings"
-	"sync"
 	"unicode/utf8"
 
 	"gitlab.badanamu.com.cn/calmisland/common-log/log"
@@ -258,14 +257,6 @@ func (h *RemoveOOXMLMetaDataHandler) removeOOXMLTag(ctx context.Context, xmlCont
 	return newContent, nil
 }
 
-var (
-	_RemoveOOXMLMetaDataHandler     IFileHandler
-	_RemoveOOXMLMetaDataHandlerOnce sync.Once
-)
-
 func GetRemoveOOXMLMetaDataHandler() IFileHandler {
-	_RemoveOOXMLMetaDataHandlerOnce.Do(func() {
-		_RemoveOOXMLMetaDataHandler = new(RemoveOOXMLMetaDataHandler)
-	})
-	return _RemoveOOXMLMetaDataHandler
+	return new(RemoveOOXMLMetaDataHandler)
 }

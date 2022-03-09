@@ -7,19 +7,10 @@ import (
 	"strings"
 )
 
-const (
-	MQPrefix = "kfps:"
-)
-
 type FileInfo struct {
-	Classify  string
 	Extension string
 	Name      string
 	Path      string
-}
-
-func (f FileInfo) Topic() string {
-	return ""
 }
 
 func ParseFileInfo(message string) *FileInfo {

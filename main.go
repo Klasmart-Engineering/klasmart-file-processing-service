@@ -30,7 +30,10 @@ type SqsBody struct {
 
 func HandleRequest(ctx context.Context, sqsEvent events.SQSEvent) (string, error) {
 
-	region := "eu-west-2"
+	region, err := config.GetRegion()
+	if err != nil {
+		return "", err
+	}
 	awsSession, err := session.NewSession(&aws.Config{
 		Region: aws.String(region)},
 	)
@@ -39,7 +42,7 @@ func HandleRequest(ctx context.Context, sqsEvent events.SQSEvent) (string, error
 	}
 
 	//load config
-	config.MustLoad("./settings.yaml", awsSession)
+	config.MustLoad(awsSession)
 
 	//Init core
 	err = core.Init()
@@ -70,7 +73,7 @@ func HandleRequest(ctx context.Context, sqsEvent events.SQSEvent) (string, error
 		}
 
 	}
-	return fmt.Sprint("Process ran successfully"), nil
+	return fmt.Sprint("Process successfully"), nil
 }
 
 func main() {

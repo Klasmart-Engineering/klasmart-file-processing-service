@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  lambda-go1.x
+  
+  Sample SAM Template for lambda-go1.x
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 5
+
+Resources:
+  fpsFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Events:
+        CatchAll:
+          Type: SQS # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Queue: arn:aws:sqs:eu-west-2:828974637366:file_processing_service_lambda
+            BatchSize: 6
+            Enabled: false
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          NEW_RELIC_DISTRIBUTED_TRACING_ENABLED: false
+          log_level: debug
+          log_std_out: true
+          storage_accelerate: false
+          storage_bucket: kidsloop-global-loadtest-k8s-res
+          storage_bucket_out: kidsloop-global-loadtest-k8s-res-out
+          storage_driver: s3
+          storage_region: eu-west-2
+          processors: exif
+    Metadata:
+      DockerTag: oc-test
+      DockerContext: ./deploy
+      Dockerfile: Dockerfile
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  fpsFunction:
+    Description: "First Lambda Function ARN"
+    Value: !GetAtt fpsFunction.Arn
+

@@ -1,19 +1,26 @@
 package service
 
 import (
-	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/entity"
+	"errors"
+	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/config"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/processor"
+	"strings"
 )
 
+func (fp *FileProcessingService) initProcessors() error {
+	processors := config.Get().Core.Processors
+	if processors == "" {
+		return errors.New("processors environment variable must be set")
+	}
 
-func (fp *FileProcessingService) initProcessors(){
-	fp.addRouteProcessor("attachment", processor.GetAttachmentProcessor())
+	for _, p := range strings.Split(processors, ",") {
+		fp.addProcessor(p, processor.GetProcessor(p))
+	}
+	return nil
 }
 
-func (fp *FileProcessingService) addRouteProcessor(classify string,
-	processor processor.IFileProcessor){
-	topic := entity.MQPrefix + classify
-	fp.handler[topic] = processor.HandleFile
-	fp.supportExtensionsMap[topic] = processor.SupportExtensions()
+func (fp *FileProcessingService) addProcessor(key string,
+	processor processor.IFileProcessor) {
+	fp.handler[key] = processor.HandleFile
+	fp.supportExtensionsMap[key] = processor.SupportExtensions()
 }
-

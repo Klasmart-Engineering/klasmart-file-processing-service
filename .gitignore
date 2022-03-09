@@ -1,6 +1,9 @@
 .idea
+.aws-sam
+vendor/
 *.log
-*.json
+.vscode
+handler
 go.sum
 settings.yaml
 kidsloop-file-processing-service*

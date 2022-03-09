@@ -2,8 +2,6 @@ package core
 
 import (
 	"context"
-	"sync"
-
 	"gitlab.badanamu.com.cn/calmisland/common-log/log"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/core/exiftool"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/core/eyed3"
@@ -27,14 +25,6 @@ func (ih *RemoveMP3MetaDataHandler) Do(ctx context.Context, f *entity.HandleFile
 	return nil
 }
 
-var (
-	_removeMP3MetaDataHandler     IFileHandler
-	_removeMP3MetaDataHandlerOnce sync.Once
-)
-
 func GetRemoveMP3MetaDataHandler() IFileHandler {
-	_removeMP3MetaDataHandlerOnce.Do(func() {
-		_removeMP3MetaDataHandler = new(RemoveMP3MetaDataHandler)
-	})
-	return _removeMP3MetaDataHandler
+	return new(RemoveMP3MetaDataHandler)
 }
