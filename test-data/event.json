@@ -3,7 +3,7 @@
     {
       "messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78",
       "receiptHandle": "MessageReceiptHandle",
-      "body": "{\"Records\": [{\"eventName\":\"ObjectCreated:Put\", \"s3\": {\"bucket\": {\"name\":\"kidsloop-global-loadtest-k8s-res\"}, \"object\":{\"key\":\"assets/617927a45ce6c38339a12188_1.jpg\",\"size\":420049}}}]}",
+      "body": "{\"Records\": [{\"eventName\":\"ObjectCreated:Put\", \"s3\": {\"bucket\": {\"name\":\"kidsloop-global-loadtest-k8s-res\"}, \"object\":{\"key\":\"assets/617927a45ce6c38339a12188_2.jpg\",\"size\":420049}}}]}",
       "attributes": {
         "ApproximateReceiveCount": "1",
         "SentTimestamp": "1523232000000",

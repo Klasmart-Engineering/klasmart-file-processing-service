@@ -53,7 +53,7 @@ func (fp *FileProcessingService) handleMessage(ctx context.Context,
 	if !supportExtension {
 		log.Info(ctx, "Unsupported extension",
 			log.String("fileInfo.Extension", fileInfo.Extension),
-			log.Strings("fp.supportExtensionsMap[topic]", fp.supportExtensionsMap[key]))
+			log.Strings("fp.supportExtensionsMap[key]", fp.supportExtensionsMap[key]))
 		return nil
 	}
 

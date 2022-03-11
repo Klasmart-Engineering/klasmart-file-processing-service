@@ -71,9 +71,9 @@ func HandleRequest(ctx context.Context, sqsEvent events.SQSEvent) (string, error
 		if err != nil {
 			return "", err
 		}
-
+		fmt.Printf("file %s successfully processed \n", key)
 	}
-	return fmt.Sprint("Process successfully"), nil
+	return "Process finished successfully", nil
 }
 
 func main() {
