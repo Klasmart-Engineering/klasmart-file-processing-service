@@ -202,3 +202,22 @@ redis> lpush kfps:attachment '{"message": "assets/01b627c0e4faea58f6ccd8a4100c91
 
 ​	classify is the name of processor(topic remove the prefix of "kfps:"), file_name is the name of file.
 
+# Lambda Version
+
+Solution documented here https://calmisland.atlassian.net/wiki/spaces/BTS/pages/2546204686/OC+File+Processing+Service?focusedCommentId=2559180847#POC
+
+## Test Instructions
+
+This version includes at least one test for all the file types supported 
+
+Instructions to test this version as lambda:
+
+1. Install aws sam cli https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html
+2. build the app `go build -o deploy/handler -ldflags "-X gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/constant.GitHash=$(git rev-list -1 HEAD) -X gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/constant.BuildTimestamp=$(date +%s)"`
+3. build sam image `sam build`
+4. run the image `sam local invoke  -e test-data/event.json`
+
+The sam template (`/template.yaml`) contains the runtime configuration. 
+The even (`event.json`) is a mock of the event sent from S3 to SQS which triggers the lambda. The file on this event has to be previously uploaded and present in the S3 bucket
+
+
