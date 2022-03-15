@@ -8,7 +8,7 @@ import (
 
 var (
 	mp3TestFileIn       = "../../test-data/piiFile.mp3"
-	mp3TestFileOut      = "/tmp/piiFile.mp3"
+	mp3TestFileOut      = "/tmp/piiFile.mp3-handled"
 	mp3ExpectedChecksum = "946fe9db5b82d1ea136d65c858f8a45ab30ed040274118d84891d2d7604b94aa"
 )
 

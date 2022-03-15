@@ -2,7 +2,6 @@ package mp3
 
 import (
 	"context"
-	"fmt"
 	"github.com/frolovo22/tag"
 	"gitlab.badanamu.com.cn/calmisland/common-log/log"
 	"os"
@@ -25,8 +24,6 @@ func RemoveMetadata(ctx context.Context, file, outFile string) error {
 			log.Any("file", file))
 		return err
 	}
-
-	fmt.Println(tags.GetAllTagNames())
 
 	err = tags.DeleteAll()
 	if err != nil {
