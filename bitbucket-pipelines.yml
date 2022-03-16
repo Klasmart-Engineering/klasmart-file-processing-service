@@ -97,6 +97,56 @@ pipelines:
                 WEBHOOK_URL: $WEBHOOK_URL
                 PRETEXT: '"[Alpha] $BITBUCKET_REPO_SLUG - Pipeline ${BITBUCKET_GIT_HTTP_ORIGIN}/addon/pipelines/home#!/results/${BITBUCKET_BUILD_NUMBER}"'
                 MESSAGE: "ECS update has exited with [$BUILD_STATUS] status"
+    feature/lambda-test:
+      - step:
+          name: "Compile"
+          image: golang:alpine
+          script:
+            - apk add git --no-cache
+            - set +x
+            - echo "machine gitlab.badanamu.com.cn" >> ~/.netrc
+            - echo "  login $GITLAB_USERNAME"       >> ~/.netrc
+            - echo "  password $GITLAB_PASSWORD"    >> ~/.netrc
+            - set -x
+            - go env -w GO111MODULE=on
+            - export GOPRIVATE=gitlab.badanamu.com.cn
+            - export NETRC=/root/.netrc
+            - go mod tidy
+            - go get
+            - go mod vendor
+            - go build -o deploy/handler -ldflags "-X gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/constant.GitHash=$(git rev-list -1 HEAD) -X gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/constant.BuildTimestamp=$(date +%s)"
+            - echo $BUILD_RESULT
+          caches:
+            - gomodules
+
+          artifacts:
+            - deploy/*
+
+      - step:
+          name: "Build & Push Docker image"
+          image: python:3.7.4-alpine3.10
+          script:
+            - pip3 install -U awscli
+
+            - export BRANCH_TAG=$(echo "$BITBUCKET_BRANCH" | sed -E 's/([^0-9a-zA-Z]+)/-/g' | awk '{print tolower($0)}')
+            - export REPO=$DOCKER_REPO_URL/kidsloop-file-processing-service # DOCKER_REPO_URL is workspace wide variable
+
+            - aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin $DOCKER_REPO_URL
+            - aws s3 cp s3://$S3_BUCKET/keys/ deploy/ --recursive --sse aws:kms --sse-kms-key-id $KMS_KEY
+
+            - docker build -t kidsloop-file-processing-service deploy/
+            - docker tag kidsloop-file-processing-service:latest $REPO:$BRANCH_TAG
+            - docker tag kidsloop-file-processing-service:latest $REPO:$BRANCH_TAG-latest
+            - docker tag kidsloop-file-processing-service:latest $REPO:$BRANCH_TAG-$BITBUCKET_BUILD_NUMBER
+            - docker tag kidsloop-file-processing-service:latest $REPO:$BRANCH_TAG-${BITBUCKET_COMMIT:0:7}
+
+            - docker push $REPO:$BRANCH_TAG
+            - docker push $REPO:$BRANCH_TAG-latest
+            - docker push $REPO:$BRANCH_TAG-$BITBUCKET_BUILD_NUMBER
+            - docker push $REPO:$BRANCH_TAG-${BITBUCKET_COMMIT:0:7}
+          services:
+            - docker
+
 
       # This step will deploy an image to the new "landing zone" environment via ArgoCD.
       # See here for the equivalent Github Actions pipeline: https://github.com/KL-Engineering/user-service/pull/27
