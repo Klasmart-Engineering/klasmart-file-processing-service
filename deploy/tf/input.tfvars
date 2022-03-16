@@ -1,0 +1,5 @@
+lambda_function_name  = "kidsloop-global-loadtest-k8s-file-processing-service"
+region                = "eu-west-2"
+lambda_function_image = "828974637366.dkr.ecr.eu-west-2.amazonaws.com/kidsloop-file-processing-service:oc-test-3"
+inbound_bucket        = "kidsloop-global-loadtest-k8s-res"
+outbound_bucket       = "kidsloop-global-loadtest-k8s-res-out"
