@@ -25,15 +25,21 @@ func RemoveMetadata(ctx context.Context, file, outFile string) error {
 		return err
 	}
 
-	err = tags.DeleteAll()
-	if err != nil {
-		log.Error(ctx, "Failed to delete tags",
+	if err = tags.DeleteComment(); err != nil {
+		log.Error(ctx, "Failed to delete Comments",
 			log.Err(err),
 			log.Any("file", file))
 		return err
 	}
-	err = tags.SaveFile(outFile)
-	if err != nil {
+
+	if err = tags.DeleteAuthor(); err != nil {
+		log.Error(ctx, "Failed to delete Author",
+			log.Err(err),
+			log.Any("file", file))
+		return err
+	}
+
+	if err = tags.SaveFile(outFile); err != nil {
 		log.Error(ctx, "Failed to save processed tags",
 			log.Err(err),
 			log.Any("file", outFile))

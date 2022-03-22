@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"gitlab.badanamu.com.cn/calmisland/common-log/log"
 	_ "gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/config"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/core"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/service"
@@ -28,15 +28,9 @@ type SqsBody struct {
 
 func HandleRequest(ctx context.Context, sqsEvent events.SQSEvent) (string, error) {
 
-	//Init core
-	err := core.Init()
-	if err != nil {
-		fmt.Println("Init core failed, err:", err)
-		return "", err
-	}
+	log.Debug(ctx, "SQS Record received",
+		log.Int("size", len(sqsEvent.Records)))
 
-	fmt.Printf("SQS Record size = %d\n", len(sqsEvent.Records))
-	//start Handler
 	srv := service.GetFileProcessingService()
 
 	for _, message := range sqsEvent.Records {
@@ -48,19 +42,27 @@ func HandleRequest(ctx context.Context, sqsEvent events.SQSEvent) (string, error
 		}
 
 		// data.Records contains a single record always
-		bucket := data.Records[0].S3.Bucket.Name
-		key := data.Records[0].S3.Object.Key
-		fmt.Printf("Bucket = %s, Key = %s \n", bucket, key)
+		s3Bucket := data.Records[0].S3.Bucket.Name
+		s3Key := data.Records[0].S3.Object.Key
 
-		err = srv.Handle(ctx, key)
+		log.Debug(ctx, "S3 bucket details",
+			log.String("Bucket", s3Bucket),
+			log.String("key", s3Key))
+
+		err = srv.Handle(ctx, s3Key)
 		if err != nil {
 			return "", err
 		}
-		fmt.Printf("file %s successfully processed \n", key)
+
+		log.Debug(ctx, "file successfully processed", log.String("key", s3Key))
 	}
 	return "Process finished successfully", nil
 }
 
 func main() {
+	//Init core
+	if err := core.Init(); err != nil {
+		panic(err)
+	}
 	lambda.Start(HandleRequest)
 }

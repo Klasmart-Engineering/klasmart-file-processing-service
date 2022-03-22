@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"mime/multipart"
 	"strings"
@@ -53,7 +52,9 @@ func (s *S3Storage) UploadFile(ctx context.Context, filePath string, fileStream 
 
 	extension, err := s.fetchFileContentType(ctx, filePath)
 	if err != nil {
-		fmt.Println("Fetch extension failed, err: ", err, ", key:", filePath)
+		log.Error(ctx, "Fetch extension failed",
+			log.Err(err),
+			log.String("key", filePath))
 		return err
 	}
 
@@ -64,7 +65,10 @@ func (s *S3Storage) UploadFile(ctx context.Context, filePath string, fileStream 
 		ContentType: aws.String(extension),
 	})
 	if err != nil {
-		fmt.Println("File upload failed, bucket: ", s.bucketOut, ", key:", filePath)
+		log.Error(ctx, "File upload failed",
+			log.Err(err),
+			log.String("bucket", s.bucketOut),
+			log.String("key", filePath))
 		return err
 	}
 	return nil

@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 	"gitlab.badanamu.com.cn/calmisland/common-log/log"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/entity"
 )
@@ -44,7 +43,6 @@ func (fp *FileProcessingService) handleMessage(ctx context.Context,
 			log.String("file", file))
 		return errors.New("failed to parse info file: " + file)
 	}
-	fmt.Println(fp.supportExtensionsMap)
 	log.Info(ctx, "Check contains",
 		log.String("fileInfo.Extension", fileInfo.Extension),
 		log.Strings("fp.supportExtensionsMap[key]", fp.supportExtensionsMap[key]))

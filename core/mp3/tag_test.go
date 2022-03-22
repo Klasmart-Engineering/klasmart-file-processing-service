@@ -9,7 +9,7 @@ import (
 var (
 	mp3TestFileIn       = "../../test-data/piiFile.mp3"
 	mp3TestFileOut      = "/tmp/piiFile.mp3-handled"
-	mp3ExpectedChecksum = "946fe9db5b82d1ea136d65c858f8a45ab30ed040274118d84891d2d7604b94aa"
+	mp3ExpectedChecksum = "bbd096ad51734bd9173ca05d537b3f263a3e71ee9173cac336fb80c88f734944"
 )
 
 func TestRemoveMetadataMP3(t *testing.T) {
