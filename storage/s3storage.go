@@ -4,15 +4,11 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"mime/multipart"
-	"net/http"
-	"net/url"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
@@ -20,69 +16,24 @@ import (
 )
 
 type S3StorageConfig struct {
-	Endpoint   string
 	Bucket     string
+	BucketOut  string
 	Region     string
 	Accelerate bool
-	SecretID   string
-	SecretKey  string
 }
 
 type S3Storage struct {
 	session    *session.Session
 	bucket     string
+	bucketOut  string
 	region     string
-	endpoint   string
 	accelerate bool
-
-	secretID  string
-	secretKey string
-}
-
-type EndPointWithScheme struct {
-	endpoint *string
-	scheme   string
-	isHttps  bool
-}
-
-func (s S3Storage) getEndpoint(ctx context.Context) (*EndPointWithScheme, error) {
-	if s.endpoint == "" {
-		return &EndPointWithScheme{
-			endpoint: nil,
-			scheme:   "https",
-			isHttps:  true,
-		}, nil
-	}
-	p, err := url.Parse(s.endpoint)
-	if err != nil {
-		return nil, err
-	}
-	ret := &EndPointWithScheme{
-		endpoint: aws.String(s.endpoint),
-		scheme:   p.Scheme,
-		isHttps:  p.Scheme == "https",
-	}
-
-	return ret, nil
 }
 
 func (s *S3Storage) OpenStorage(ctx context.Context) error {
-	//在~/.aws/credentials文件中保存secretId和secretKey
-	endPointInfo, err := s.getEndpoint(ctx)
-	if err != nil {
-		return err
-	}
-	flag := !endPointInfo.isHttps
-
 	cfg := &aws.Config{
-		Endpoint:         endPointInfo.endpoint,
-		Region:           aws.String(s.region),
-		S3UseAccelerate:  aws.Bool(s.accelerate),
-		DisableSSL:       aws.Bool(flag),
-		S3ForcePathStyle: aws.Bool(flag),
-	}
-	if s.secretID != "" && s.secretKey != "" {
-		cfg.Credentials = credentials.NewStaticCredentials(s.secretID, s.secretKey, "")
+		Region:          aws.String(s.region),
+		S3UseAccelerate: aws.Bool(s.accelerate),
 	}
 	sess, err := session.NewSession(cfg)
 	if err != nil {
@@ -96,67 +47,28 @@ func (s *S3Storage) CloseStorage(ctx context.Context) {
 
 }
 
-func getContentType(fileStream multipart.File) string {
-	data := make([]byte, 512)
-	fileStream.Read(data)
-
-	t := http.DetectContentType(data)
-	fileStream.Seek(0, io.SeekStart)
-	return t
-}
-
-func getContentTypeBytes(fileStream *bytes.Buffer) string {
-	data := make([]byte, 512)
-	fileStream.Read(data)
-
-	t := http.DetectContentType(data)
-	fileStream.Reset()
-	return t
-}
-
-func (s3s *S3Storage) ListAll() ([]string, error) {
-	svc := s3.New(s3s.session)
-	token := (*string)(nil)
-	ret := make([]string, 0)
-	for {
-		objs, err := svc.ListObjectsV2(&s3.ListObjectsV2Input{
-			Bucket:            aws.String(s3s.bucket),
-			MaxKeys:           aws.Int64(1000),
-			ContinuationToken: token,
-		})
-		token = objs.NextContinuationToken
-		if err != nil {
-			return nil, err
-		}
-		for i := range objs.Contents {
-			ret = append(ret, *objs.Contents[i].Key)
-			//fmt.Printf("Key:%s, Size:%d, ETag:%s, PartNumber:%d, StorageClass:%v\n",
-			//	v.Contents[i].Key, v.Contents[i].Size, v.Contents[i].ETag, v.Contents[i].PartNumber, v.Contents[i].StorageClass)
-		}
-		if !*objs.IsTruncated {
-			break
-		}
-	}
-
-	return ret, nil
-}
 func (s *S3Storage) UploadFile(ctx context.Context, filePath string, fileStream multipart.File) error {
 	uploader := s3manager.NewUploader(s.session)
-	//contentType := getContentType(fileStream)
 
 	extension, err := s.fetchFileContentType(ctx, filePath)
 	if err != nil {
-		fmt.Println("Fetch extension failed, err: ", err, ", key:", filePath)
+		log.Error(ctx, "Fetch extension failed",
+			log.Err(err),
+			log.String("key", filePath))
 		return err
 	}
 
 	_, err = uploader.Upload(&s3manager.UploadInput{
-		Bucket:      aws.String(s.bucket),
+		Bucket:      aws.String(s.bucketOut),
 		Key:         aws.String(filePath),
 		Body:        fileStream,
 		ContentType: aws.String(extension),
 	})
 	if err != nil {
+		log.Error(ctx, "File upload failed",
+			log.Err(err),
+			log.String("bucket", s.bucketOut),
+			log.String("key", filePath))
 		return err
 	}
 	return nil
@@ -253,10 +165,8 @@ func (s *S3Storage) fetchFileContentType(ctx context.Context, key string) (strin
 func newS3Storage(c S3StorageConfig) IStorage {
 	return &S3Storage{
 		bucket:     c.Bucket,
+		bucketOut:  c.BucketOut,
 		region:     c.Region,
-		endpoint:   c.Endpoint,
 		accelerate: c.Accelerate,
-		secretID:   c.SecretID,
-		secretKey:  c.SecretKey,
 	}
 }

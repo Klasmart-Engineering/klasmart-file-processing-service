@@ -2,6 +2,7 @@ package processor
 
 import (
 	"context"
+	"gitlab.badanamu.com.cn/calmisland/common-log/log"
 	"strings"
 	"sync"
 
@@ -14,10 +15,10 @@ type IFileProcessor interface {
 	SupportExtensions() []string
 }
 
-type AttachmentProcessor struct {
+type ExifProcessor struct {
 }
 
-func (a AttachmentProcessor) HandleFile(ctx context.Context, f *entity.HandleFileParams) error {
+func (a ExifProcessor) HandleFile(ctx context.Context, f *entity.HandleFileParams) error {
 	switch strings.ToLower(f.Extension) {
 	case "jpg":
 		return core.GetRemoveJPEGMetaDataHandler().Do(ctx, f)
@@ -41,20 +42,27 @@ func (a AttachmentProcessor) HandleFile(ctx context.Context, f *entity.HandleFil
 	return nil
 }
 
-func (a AttachmentProcessor) SupportExtensions() []string {
+func (a ExifProcessor) SupportExtensions() []string {
 	return []string{
 		"jpg", "jpeg", "mp4", "mp3", "mov", "docx", "xlsx", "pptx",
 	}
 }
 
 var (
-	_attachmentProcessor     *AttachmentProcessor
+	_attachmentProcessor     *ExifProcessor
 	_attachmentProcessorOnce sync.Once
 )
 
-func GetAttachmentProcessor() IFileProcessor {
-	_attachmentProcessorOnce.Do(func() {
-		_attachmentProcessor = new(AttachmentProcessor)
-	})
-	return _attachmentProcessor
+func GetProcessor(p string) IFileProcessor {
+	switch p {
+	case "exif":
+		_attachmentProcessorOnce.Do(func() {
+			_attachmentProcessor = new(ExifProcessor)
+		})
+		return _attachmentProcessor
+	default:
+		log.Info(nil, "No processor found with key ",
+			log.String("file", p))
+	}
+	return nil
 }

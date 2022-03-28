@@ -5,7 +5,6 @@ import (
 	"gitlab.badanamu.com.cn/calmisland/common-log/log"
 	"gitlab.badanamu.com.cn/calmisland/kidsloop-file-processing-service/entity"
 	"image/png"
-	"sync"
 )
 
 type RemovePNGMetaDataHandler struct {
@@ -37,14 +36,7 @@ func (ih *RemovePNGMetaDataHandler) Do(ctx context.Context, f *entity.HandleFile
 
 	return nil
 }
-var (
-	_RemovePNGMetaDataHandler    IFileHandler
-	_RemovePNGMetaDataHandlerOnce sync.Once
-)
 
 func GetRemovePNGMetaDataHandler() IFileHandler {
-	_RemovePNGMetaDataHandlerOnce.Do(func() {
-		_RemovePNGMetaDataHandler = new(RemovePNGMetaDataHandler)
-	})
-	return _RemovePNGMetaDataHandler
+	return new(RemovePNGMetaDataHandler)
 }

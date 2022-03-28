@@ -55,20 +55,6 @@ func (fp *FileProcessingService) uploadHandledFile(ctx context.Context, fileInfo
 	return nil
 }
 
-func (fp *FileProcessingService) backupFile(ctx context.Context, file *entity.FileInfo, f *os.File) error {
-	uploadPath := "/backup/" + file.Path
-	err := storage.DefaultStorage(ctx).UploadFile(ctx, uploadPath, f)
-	if err != nil {
-		log.Error(ctx, "Can't upload resource",
-			log.Err(err),
-			log.Any("f", f),
-			log.Any("file", file))
-		return err
-	}
-	f.Seek(0, io.SeekStart)
-	return nil
-}
-
 func (fp *FileProcessingService) downloadFile(ctx context.Context, fileInfo *entity.FileInfo) (*entity.HandleFileParams, error) {
 	reader, err := storage.DefaultStorage(ctx).DownloadFile(ctx, fileInfo.Path)
 	if err != nil {
@@ -108,7 +94,6 @@ func (fp *FileProcessingService) downloadFile(ctx context.Context, fileInfo *ent
 	return &entity.HandleFileParams{
 		Extension: fileInfo.Extension,
 		Name:      fileInfo.Name,
-		Classify:  fileInfo.Classify,
 		LocalFile: f,
 		LocalPath: localFilePath,
 	}, nil
