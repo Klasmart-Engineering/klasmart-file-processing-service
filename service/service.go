@@ -43,17 +43,6 @@ func (fp *FileProcessingService) handleMessage(ctx context.Context,
 			log.String("file", file))
 		return errors.New("failed to parse info file: " + file)
 	}
-	log.Info(ctx, "Check contains",
-		log.String("fileInfo.Extension", fileInfo.Extension),
-		log.Strings("fp.supportExtensionsMap[key]", fp.supportExtensionsMap[key]))
-	//ignore unsupported extension
-	supportExtension := fp.containsString(fileInfo.Extension, fp.supportExtensionsMap[key])
-	if !supportExtension {
-		log.Info(ctx, "Unsupported extension",
-			log.String("fileInfo.Extension", fileInfo.Extension),
-			log.Strings("fp.supportExtensionsMap[key]", fp.supportExtensionsMap[key]))
-		return nil
-	}
 
 	log.Info(ctx, "downloading File",
 		log.Any("fileInfo", fileInfo))
@@ -68,19 +57,32 @@ func (fp *FileProcessingService) handleMessage(ctx context.Context,
 	log.Debug(ctx, "downloading success",
 		log.Any("fileParams", fileParams))
 	defer fileParams.CleanLocalFile(ctx)
-	defer fileParams.CleanOutputFile(ctx)
 
-	//handle file
-	err = handler(ctx, fileParams)
-	if err != nil {
-		log.Error(ctx, "Handle file failed",
-			log.Err(err),
-			log.Any("fileParams", fileParams))
-		return err
+	log.Info(ctx, "Check contains",
+		log.String("fileInfo.Extension", fileInfo.Extension),
+		log.Strings("fp.supportExtensionsMap[key]", fp.supportExtensionsMap[key]))
+
+	supportExtension := fp.containsString(fileInfo.Extension, fp.supportExtensionsMap[key])
+	if supportExtension {
+		log.Info(ctx, "Supported extension - processing file...",
+			log.String("fileInfo.Extension", fileInfo.Extension),
+			log.Strings("fp.supportExtensionsMap[key]", fp.supportExtensionsMap[key]))
+
+		//handle file
+		err = handler(ctx, fileParams)
+		if err != nil {
+			log.Error(ctx, "Handle file failed",
+				log.Err(err),
+				log.Any("fileParams", fileParams))
+			return err
+		}
+		defer fileParams.CleanOutputFile(ctx)
+	} else {
+		log.Info(ctx, "not supported")
 	}
-
 	//upload file
-	err = fp.uploadHandledFile(ctx, fileInfo, fileParams.DistPath)
+	log.Debug(ctx, "Uploading file", log.Any("fileInfo", fileInfo))
+	err = fp.uploadHandledFile(ctx, fileInfo, *fileParams)
 	if err != nil {
 		log.Error(ctx, "uploadHandledFile failed",
 			log.Err(err),
