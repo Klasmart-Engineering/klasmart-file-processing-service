@@ -25,9 +25,10 @@ func (fp *FileProcessingService) removeUnusedFiles(ctx context.Context, filePath
 	}
 }
 
-func (fp *FileProcessingService) uploadHandledFile(ctx context.Context, fileInfo *entity.FileInfo, filePath string) error {
+func (fp *FileProcessingService) uploadHandledFile(ctx context.Context, fileInfo *entity.FileInfo, fileParams entity.HandleFileParams) error {
+	filePath := fileParams.DistPath
 	if filePath == "" {
-		return nil
+		filePath = fileParams.LocalPath
 	}
 	_, err := os.Stat(filePath)
 	if err != nil {
